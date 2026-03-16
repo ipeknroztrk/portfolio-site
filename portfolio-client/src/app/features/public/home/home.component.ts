@@ -9,6 +9,7 @@ import { SkillsComponent } from '../skills/skills.component';
 import { ContactComponent } from '../contact/contact.component';
 import { StarsBgComponent } from '../stars-bg/stars-bg.component';
 import { CursorComponent } from '../cursor/cursor.component';
+
 import { GameComponent } from '../game/game.component';
 
 @Component({
@@ -29,13 +30,14 @@ import { GameComponent } from '../game/game.component';
   ],
   template: `
     <app-stars-bg />
-    <app-cursor />
+   
     <div class="scroll-progress" [style.width.%]="scrollPercent"></div>
     <app-navbar />
     <main>
       <app-hero />
       <app-about />
       <app-experience />
+      <app-cursor/>
       <app-projects />
       <app-skills />
       <app-contact />
@@ -46,11 +48,11 @@ import { GameComponent } from '../game/game.component';
     .scroll-progress {
       position: fixed;
       top: 0; left: 0;
-      height: 2px;
-      background: linear-gradient(90deg, #06b6d4, #c0c0c0, #06b6d4);
-      z-index: 99999;
+      height: 3px;
+      background: linear-gradient(90deg, #fbbf24, #06b6d4, #fbbf24);
+      z-index: 999999;
       transition: width 0.1s linear;
-      box-shadow: 0 0 8px #06b6d4;
+      box-shadow: 0 0 10px #fbbf24, 0 0 20px rgba(251,191,36,0.5);
     }
   `]
 })

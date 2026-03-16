@@ -1,6 +1,5 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 @Component({
   selector: 'app-cursor',
   standalone: true,
@@ -17,13 +16,19 @@ export class CursorComponent implements OnInit, OnDestroy {
   isClicking = false;
   private animId!: number;
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private zone: NgZone
+  ) {}
 
   ngOnInit(): void {
-    window.addEventListener('mousemove', this.onMove);
-    window.addEventListener('mouseover', this.onOver);
-    window.addEventListener('mousedown', this.onDown);
-    window.addEventListener('mouseup', this.onUp);
+    this.zone.runOutsideAngular(() => {
+      window.addEventListener('mousemove', this.onMove);
+      window.addEventListener('mouseover', this.onOver);
+      window.addEventListener('mousedown', this.onDown);
+      window.addEventListener('mouseup', this.onUp);
+    });
+  
     this.animate();
   }
 

@@ -20,7 +20,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  cursor: none;
+ 
   pointer-events: auto;
 }
 
@@ -44,10 +44,14 @@ input, textarea, select {
 }
 
 // Stars canvas ve cursor tıklamayı engellemez
-app-stars-bg canvas,
-app-cursor div {
-  pointer-events: none !important;
-}
+app-stars-bg canvas {
+    pointer-events: none !important;
+  }
+  
+  app-cursor,
+  app-cursor * {
+    pointer-events: none !important;
+  }
 
 // Mobilde normal cursor
 @media (max-width: 768px) {
@@ -115,7 +119,14 @@ section {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-
+app-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99999;
+    display: block;
+  }
 @keyframes glitch {
   0% { transform: translate(0); }
   10% { transform: translate(-2px, 1px); clip-path: inset(20% 0 60% 0); }
@@ -129,3 +140,4 @@ section {
   90% { transform: translate(-1px, -1px); }
   100% { transform: translate(0); clip-path: none; }
 }
+

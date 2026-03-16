@@ -3,13 +3,23 @@
       ipek<span>.dev</span>
     </div>
   
-    <ul class="nav-links" [class.open]="menuOpen">
-      <li *ngFor="let item of navItems"
-          [class.active]="activeSection === item.target"
-          (click)="scrollTo(item.target)">
-        {{ item.label }}
-      </li>
-    </ul>
+    <div class="nav-links">
+      <button class="nav-link" [class.active]="activeSection === 'about'" (click)="scrollTo('about')">
+        {{ langService.t.nav.about }}
+      </button>
+      <button class="nav-link" [class.active]="activeSection === 'experience'" (click)="scrollTo('experience')">
+        {{ langService.t.nav.experience }}
+      </button>
+      <button class="nav-link" [class.active]="activeSection === 'projects'" (click)="scrollTo('projects')">
+        {{ langService.t.nav.projects }}
+      </button>
+      <button class="nav-link" [class.active]="activeSection === 'skills'" (click)="scrollTo('skills')">
+        {{ langService.t.nav.skills }}
+      </button>
+      <button class="nav-link" [class.active]="activeSection === 'contact'" (click)="scrollTo('contact')">
+        {{ langService.t.nav.contact }}
+      </button>
+    </div>
   
     <div class="nav-controls">
       <button class="toggle-btn lang-btn"

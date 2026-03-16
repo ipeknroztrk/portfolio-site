@@ -1,9 +1,18 @@
+:host {
+    pointer-events: none;
+  }
+  .star-cursor,
+  .trail-ring {
+    position: fixed;
+    pointer-events: none;
+    isolation: isolate;
+  }
 .star-cursor {
     position: fixed;
     width: 18px;
     height: 18px;
     pointer-events: none;
-    z-index: 99999;
+    z-index: 100000;
     transform: translate(-50%, -50%);
     color: #fbbf24;
     filter:
@@ -49,7 +58,7 @@
     border: 1px solid rgba(251, 191, 36, 0.25);
     border-radius: 50%;
     pointer-events: none;
-    z-index: 99998;
+    z-index: 99999;
     transform: translate(-50%, -50%);
     transition: width 0.3s, height 0.3s;
   

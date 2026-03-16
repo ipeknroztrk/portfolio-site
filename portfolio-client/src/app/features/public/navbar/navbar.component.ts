@@ -36,16 +36,20 @@ export class NavbarComponent {
     this.updateActiveSection();
   }
   scrollTo(sectionId: string): void {
+    console.log('scrollTo çağrıldı:', sectionId);
     this.menuOpen = false;
-    
+  
     setTimeout(() => {
       const el = document.getElementById(sectionId);
+      console.log('element:', el);
       if (!el) return;
-      
-      const y = el.offsetTop - 80;
+  
+      const y = el.getBoundingClientRect().top + window.scrollY - 80;
+      console.log('y:', y, 'window.scrollY:', window.scrollY);
       window.scrollTo({ top: y, behavior: 'smooth' });
     }, 10);
   }
+  
   private updateActiveSection(): void {
     const sections = ['hero', 'about', 'experience', 'projects', 'skills', 'contact', 'game'];
     for (const id of sections) {
