@@ -1,0 +1,34 @@
+<div class="login-wrapper">
+    <div class="login-card">
+      <h1>Admin Panel</h1>
+      <p class="subtitle">Giriş yapın</p>
+  
+      <form (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label>Kullanıcı Adı</label>
+          <input
+            type="text"
+            [(ngModel)]="username"
+            name="username"
+            placeholder="admin"
+            autocomplete="username" />
+        </div>
+  
+        <div class="form-group">
+          <label>Şifre</label>
+          <input
+            type="password"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="••••••••"
+            autocomplete="current-password" />
+        </div>
+  
+        <div class="error-msg" *ngIf="errorMessage">{{ errorMessage }}</div>
+  
+        <button type="submit" [disabled]="isLoading">
+          {{ isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap' }}
+        </button>
+      </form>
+    </div>
+  </div>

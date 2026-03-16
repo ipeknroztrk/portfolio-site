@@ -1,0 +1,34 @@
+<section id="skills">
+    <div class="container">
+      <span class="section-tag">{{ langService.t.skills.tag }}</span>
+      <h2 class="section-title">{{ langService.t.skills.title }}</h2>
+      <div class="section-line"></div>
+  
+      <div *ngIf="isLoading" class="loading">...</div>
+  
+      <div class="skills-layout" *ngIf="!isLoading" fadeUp>
+        <div class="skill-category" *ngFor="let cat of categories">
+          <h3 class="cat-title">{{ cat }}</h3>
+          <div class="hex-grid">
+            <div class="hex-item"
+                 *ngFor="let skill of getSkillsByCategory(cat)"
+                 [class.expert]="skill.level === 5"
+                 [class.advanced]="skill.level === 4"
+                 [class.mid]="skill.level === 3"
+                 [title]="skill.name + ' — ' + getLevelLabel(skill.level)">
+              <div class="hex-inner">
+                <span class="hex-name">{{ skill.name }}</span>
+                <span class="hex-level">{{ getLevelLabel(skill.level) }}</span>
+                <div class="hex-dots">
+                  <span *ngFor="let d of getDots(skill.level)"
+                        class="hex-dot filled"></span>
+                  <span *ngFor="let d of getEmptyDots(skill.level)"
+                        class="hex-dot"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>

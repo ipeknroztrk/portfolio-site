@@ -1,0 +1,17 @@
+# .NET
+**/bin/
+**/obj/
+**/*.user
+**/appsettings.Development.json
+
+# Angular
+portfolio-client/node_modules/
+portfolio-client/dist/
+
+# Secrets
+**/.env
+**/secrets.json
+
+# OS
+Thumbs.db
+.DS_Store

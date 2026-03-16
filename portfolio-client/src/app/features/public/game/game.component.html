@@ -1,0 +1,184 @@
+<section id="game">
+    <div class="container">
+      <span class="section-tag">//falling star</span>
+      <h2 class="section-title">
+        {{ langService.current() === 'tr' ? 'while(bored) { play(); }' : 'while(bored) { play(); }' }}
+      </h2>
+      <div class="section-line"></div>
+  
+      <div class="game-wrapper">
+  
+        <div class="game-sidebar">
+          <div class="stat-box">
+            <span class="stat-lbl">{{ langService.current() === 'tr' ? 'Skor' : 'Score' }}</span>
+            <span class="stat-num cyan">{{ score }}</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-lbl">{{ langService.current() === 'tr' ? 'En Yüksek' : 'Best' }}</span>
+            <span class="stat-num silver">{{ highScore }}</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-lbl">{{ langService.current() === 'tr' ? 'Seviye' : 'Level' }}</span>
+            <span class="stat-num">{{ level }}</span>
+          </div>
+          <div class="lives">
+            <span class="stat-lbl">{{ langService.current() === 'tr' ? 'Can' : 'Lives' }}</span>
+            <div class="hearts">
+              <span *ngFor="let l of getLives()">⭐</span>
+            </div>
+          </div>
+          <div class="legend">
+            <div class="legend-item">
+              <span class="dot cyan-dot">★</span>
+              <span>10 pts</span>
+            </div>
+            <div class="legend-item">
+              <span class="dot silver-dot">★</span>
+              <span>20 pts</span>
+            </div>
+            <div class="legend-item">
+              <span class="dot gold-dot">★</span>
+              <span>30 pts</span>
+            </div>
+          </div>
+          <div class="hint">
+            {{ langService.current() === 'tr' ? '← → veya A/D' : '← → or A/D' }}
+          </div>
+        </div>
+  
+        <div class="game-canvas-wrapper">
+          <svg [attr.width]="gameSize"
+               [attr.height]="gameSize"
+               [attr.viewBox]="'0 0 ' + WIDTH + ' ' + WIDTH"
+               class="game-svg"
+               (touchstart)="onTouchStart($event)"
+               (touchmove)="onTouchMove($event)">
+  
+            <defs>
+              <filter id="glow-player">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+              <filter id="glow-cyan">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <filter id="glow-silver">
+                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <filter id="glow-gold">
+                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(6,182,212,0.05)" stroke-width="0.5"/>
+              </pattern>
+            </defs>
+  
+            <rect width="100%" height="100%" fill="url(#grid)"/>
+  
+            <!-- Parçacıklar -->
+            <circle *ngFor="let p of particles"
+                    [attr.cx]="p.x" [attr.cy]="p.y"
+                    [attr.r]="2"
+                    [attr.fill]="p.color"
+                    [attr.opacity]="p.life / 35">
+            </circle>
+  
+            <!-- Yıldızlar -->
+            <g *ngFor="let s of stars"
+               [attr.transform]="'translate(' + s.x + ',' + s.y + ') rotate(' + s.angle + ')'">
+              <path [attr.d]="getStarPath(s.size)"
+                    [attr.fill]="s.color === 'cyan' ? '#06b6d4' : s.color === 'silver' ? '#c0c0c0' : '#fbbf24'"
+                    [attr.filter]="'url(#glow-' + s.color + ')'">
+              </path>
+            </g>
+  
+            <!-- Oyuncu — uzay gemisi -->
+            <g [attr.transform]="'translate(' + playerX + ',' + playerY + ')'">
+              <polygon points="0,-18 12,10 0,4 -12,10"
+                       fill="#e879f9"
+                       filter="url(#glow-player)"/>
+              <polygon points="0,-18 12,10 0,4 -12,10"
+                       fill="none"
+                       stroke="rgba(255,255,255,0.7)"
+                       stroke-width="0.8"/>
+              <ellipse cx="0" cy="10" rx="4" ry="2" fill="rgba(232,121,249,0.6)"/>
+            </g>
+  
+            <!-- Overlay — başlangıç -->
+            <g *ngIf="!isPlaying && !isGameOver">
+              <rect width="100%" height="100%" fill="rgba(8,11,20,0.88)"/>
+              <text x="60" y="80" font-size="20" opacity="0.4">✦</text>
+              <text x="340" y="60" font-size="14" opacity="0.3" fill="#c0c0c0">★</text>
+              <text x="30" y="200" font-size="10" opacity="0.2" fill="#06b6d4">✦</text>
+              <text x="370" y="300" font-size="18" opacity="0.3">★</text>
+              <text x="200" y="120" text-anchor="middle" fill="#06b6d4" font-size="40">🌟</text>
+              <text x="200" y="165" text-anchor="middle" fill="white" font-size="22" font-weight="bold"
+                    font-family="Inter, sans-serif">
+                {{ langService.current() === 'tr' ? 'Yıldız Avcısı' : 'Star Catcher' }}
+              </text>
+              <text x="200" y="193" text-anchor="middle" fill="rgba(226,232,240,0.5)" font-size="12"
+                    font-family="Fira Code, monospace">
+                {{ langService.current() === 'tr' ? '// sıkıldıysan oyna 😄' : '// bored? play! 😄' }}
+              </text>
+              <circle cx="120" cy="255" r="6" fill="#06b6d4" filter="url(#glow-cyan)"/>
+              <text x="132" y="259" fill="rgba(226,232,240,0.6)" font-size="11" font-family="Fira Code, monospace">
+                {{ langService.current() === 'tr' ? 'Cyan = 10 puan' : 'Cyan = 10 pts' }}
+              </text>
+              <circle cx="120" cy="278" r="6" fill="#c0c0c0" filter="url(#glow-silver)"/>
+              <text x="132" y="282" fill="rgba(226,232,240,0.6)" font-size="11" font-family="Fira Code, monospace">
+                {{ langService.current() === 'tr' ? 'Gümüş = 20 puan' : 'Silver = 20 pts' }}
+              </text>
+              <circle cx="120" cy="301" r="6" fill="#fbbf24" filter="url(#glow-gold)"/>
+              <text x="132" y="305" fill="rgba(226,232,240,0.6)" font-size="11" font-family="Fira Code, monospace">
+                {{ langService.current() === 'tr' ? 'Altın = 30 puan' : 'Gold = 30 pts' }}
+              </text>
+              <text x="200" y="345" text-anchor="middle" fill="rgba(6,182,212,0.5)" font-size="11"
+                    font-family="Fira Code, monospace">
+                {{ langService.current() === 'tr' ? '← → veya sürükle' : 'use ← → or swipe' }}
+              </text>
+            </g>
+  
+            <!-- Overlay — game over -->
+            <g *ngIf="isGameOver">
+              <rect width="100%" height="100%" fill="rgba(8,11,20,0.9)"/>
+              <text x="200" y="150" text-anchor="middle" fill="#f87171" font-size="20" font-weight="bold">
+                {{ langService.current() === 'tr' ? 'Oyun Bitti!' : 'Game Over!' }}
+              </text>
+              <text x="200" y="185" text-anchor="middle" fill="#06b6d4" font-size="16">
+                {{ score }} {{ langService.current() === 'tr' ? 'puan' : 'pts' }}
+              </text>
+              <text x="200" y="215" text-anchor="middle" fill="#c0c0c0" font-size="13">
+                {{ langService.current() === 'tr' ? 'En yüksek: ' : 'Best: ' }}{{ highScore }}
+              </text>
+            </g>
+          </svg>
+  
+          <!-- Combo mesajı -->
+          <div class="combo-msg" *ngIf="comboMsg">{{ comboMsg }}</div>
+  
+          <!-- Buton -->
+          <div class="game-btn-wrapper">
+            <button class="play-btn" (click)="start()">
+              {{ isGameOver
+                ? (langService.current() === 'tr' ? 'Tekrar Oyna' : 'Play Again')
+                : (langService.current() === 'tr' ? 'Oyna' : 'Play') }}
+            </button>
+          </div>
+  
+          <!-- Mobil sürükleme ipucu -->
+          <div class="mobile-controls" *ngIf="isPlaying">
+            <span class="swipe-hint">
+              {{ langService.current() === 'tr' ? '👆 Sürükleyerek oyna' : '👆 Swipe to play' }}
+            </span>
+          </div>
+  
+        </div>
+      </div>
+    </div>
+  </section>

@@ -1,0 +1,84 @@
+<section id="experience">
+    <div class="container">
+      <span class="section-tag">{{ langService.t.experience.tag }}</span>
+      <h2 class="section-title">{{ langService.t.experience.title }}</h2>
+      <div class="section-line"></div>
+  
+      <div class="exp-layout" fadeUp>
+        <div class="exp-col">
+          <h3 class="col-title">
+            <span class="col-icon">💼</span>
+            {{ langService.t.experience.work }}
+          </h3>
+  
+          <div *ngIf="isLoading" class="loading">...</div>
+  
+          <div *ngIf="!isLoading && experiences.length === 0" class="empty-state">
+            <div class="coming-soon">
+                <div class="cs-icon">🚀</div>
+                <h4>{{ langService.current() === 'tr' ? 'Kariyer Yolculuğum Başlıyor' : 'Career Journey Begins' }}</h4>
+                <p>{{ langService.current() === 'tr'
+                  ? 'Trakya Üniversitesi Bilgisayar Mühendisliği mezunuyum. Kariyerime ilk adımı atmaya hazırım.'
+                  : 'Computer Engineering graduate from Trakya University. Ready to take my first career step.' }}</p>
+                <div class="cs-badges">
+                  <span>VakıfBank Intern × 2</span>
+                  <span>Uyumsoft Intern</span>
+                  <span>TEKNOFEST 2025</span>
+                </div>
+              </div>
+          </div>
+  
+          <div class="timeline">
+            <div class="tl-item" *ngFor="let exp of experiences; let last = last">
+              <div class="tl-marker">
+                <div class="tl-dot"></div>
+                <div class="tl-line" *ngIf="!last"></div>
+              </div>
+              <div class="tl-content">
+                <div class="tl-header">
+                  <h4>{{ exp.position }}</h4>
+                  <span class="tl-badge" *ngIf="exp.isCurrent">
+                    {{ langService.t.experience.current }}
+                  </span>
+                </div>
+                <div class="tl-company">{{ exp.company }}</div>
+                <div class="tl-date">
+                  {{ formatDate(exp.startDate) }} —
+                  {{ exp.isCurrent ? langService.t.experience.present : formatDate(exp.endDate) }}
+                </div>
+                <p class="tl-desc">{{ exp.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <div class="exp-col">
+          <h3 class="col-title">
+            <span class="col-icon">🎓</span>
+            {{ langService.t.experience.education }}
+          </h3>
+  
+          <div class="edu-card featured">
+            <div class="edu-header">
+              <div>
+                <h4>{{ langService.t.experience.uniDegree }}</h4>
+                <div class="edu-school">Trakya Üniversitesi</div>
+              </div>
+              <span class="edu-year">2021–2025</span>
+            </div>
+            <div class="edu-detail">{{ langService.t.experience.uniDetail }}</div>
+          </div>
+  
+          <div class="training-list">
+            <div class="training-item" *ngFor="let t of trainings">
+              <div class="training-info">
+                <span class="training-name">{{ t.name }}</span>
+                <span class="training-detail">{{ t.detail }}</span>
+              </div>
+              <span class="training-year">{{ t.year }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>

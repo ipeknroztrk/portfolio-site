@@ -1,0 +1,55 @@
+<section id="about">
+    <div class="container">
+      <div class="about-grid" fadeUp>
+        <div class="about-left">
+          <span class="section-tag">{{ langService.t.about.tag }}</span>
+          <h2 class="section-title">{{ langService.t.about.title }}</h2>
+          <div class="section-line"></div>
+  
+          <p>{{ langService.t.about.p1 }}</p>
+          <p>{{ langService.t.about.p2 }}</p>
+          <p>{{ langService.t.about.p3 }}</p>
+  
+          <div class="about-info">
+            <div class="info-row">
+              <span class="info-label">{{ langService.t.about.location }}</span>
+              <span class="info-value">İstanbul, Türkiye</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">{{ langService.t.about.email }}</span>
+              <span class="info-value">ipeknr12&#64;gmail.com</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">{{ langService.t.about.status }}</span>
+              <span class="info-value available">
+                <span class="dot"></span>
+                {{ langService.t.about.statusVal }}
+              </span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">{{ langService.t.about.language }}</span>
+              <span class="info-value">{{ langService.t.about.langVal }}</span>
+            </div>
+          </div>
+  
+          <div class="about-actions">
+            <a href="assets/cv.pdf" download class="btn-cv">
+              {{ langService.t.about.cvBtn }}
+            </a>
+          </div>
+        </div>
+  
+        <div class="about-right">
+          <div class="stats-grid">
+            <div class="stat-card" *ngFor="let stat of langService.t.about.stats">
+              <span class="stat-value">{{ stat.value }}</span>
+              <span class="stat-label">{{ stat.label }}</span>
+            </div>
+          </div>
+          <div class="tech-tags">
+            <span class="tag" *ngFor="let tech of techs">{{ tech }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>

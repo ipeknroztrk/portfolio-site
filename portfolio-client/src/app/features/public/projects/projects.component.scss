@@ -1,0 +1,305 @@
+section {
+    background: var(--bg2);
+    position: relative;
+    overflow: hidden;
+  
+    &::before {
+      content: '';
+      position: absolute;
+      bottom: -200px; left: -200px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(6,182,212,0.04), transparent 70%);
+      pointer-events: none;
+    }
+  }
+  
+  .loading {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 3rem;
+  }
+  
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .project-card {
+    position: relative;
+    border-radius: 20px;
+    padding: 2rem;
+    cursor: none;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow: hidden;
+  
+    // Metalik cam efekti
+    background: linear-gradient(135deg,
+      rgba(255,255,255,0.06) 0%,
+      rgba(255,255,255,0.02) 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+  
+    // Üst parlama çizgisi
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg,
+        transparent,
+        rgba(192,192,192,0.4),
+        rgba(6,182,212,0.6),
+        rgba(192,192,192,0.4),
+        transparent);
+      opacity: 0;
+      transition: opacity 0.4s, left 0.4s, right 0.4s;
+    }
+  
+  
+    &:hover {
+      transform: translateY(-10px);
+      border-color: rgba(6, 182, 212, 0.35);
+      box-shadow:
+        0 30px 60px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(6, 182, 212, 0.08),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+  
+      &::before { opacity: 1; left: 0; right: 0; }
+   
+  
+      .detail-link { color: var(--cyan); }
+      .card-number { opacity: 1; }
+    }
+  }
+  
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .card-number {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.75rem;
+    color: var(--cyan);
+    opacity: 0.4;
+    transition: opacity 0.3s;
+    letter-spacing: 2px;
+  }
+  
+  .card-links {
+    display: flex;
+    gap: 0.8rem;
+  
+    a {
+      color: var(--text-dim);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      padding: 0.4rem;
+      border-radius: 8px;
+      border: 1px solid transparent;
+  
+      &:hover {
+        color: var(--cyan);
+        border-color: rgba(6,182,212,0.3);
+        background: rgba(6,182,212,0.08);
+        transform: translateY(-2px);
+      }
+    }
+  }
+  
+  h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.3px;
+    transition: color 0.3s;
+  }
+  
+  .project-card:hover h3 {
+    background: linear-gradient(135deg, #fff, var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  p {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    line-height: 1.75;
+    flex: 1;
+  }
+  
+  .tech-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  
+    span {
+      background: rgba(6, 182, 212, 0.06);
+      border: 1px solid rgba(6, 182, 212, 0.15);
+      color: rgba(6, 182, 212, 0.8);
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-family: 'Fira Code', monospace;
+      letter-spacing: 0.3px;
+      transition: all 0.2s;
+  
+      &:hover {
+        background: rgba(6, 182, 212, 0.12);
+        color: var(--cyan);
+        border-color: rgba(6, 182, 212, 0.3);
+      }
+    }
+  }
+  
+  .card-footer {
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .detail-link {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    transition: color 0.3s;
+    font-family: 'Fira Code', monospace;
+    letter-spacing: 0.5px;
+  }
+  
+  // Modal
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(12px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.2s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .modal {
+    background: linear-gradient(135deg,
+      rgba(17, 24, 39, 0.98),
+      rgba(13, 17, 23, 0.98));
+    border: 1px solid rgba(6, 182, 212, 0.25);
+    border-radius: 24px;
+    padding: 2.5rem;
+    max-width: 560px;
+    width: 100%;
+    position: relative;
+    animation: slideUp 0.3s ease;
+    box-shadow:
+      0 40px 80px rgba(0,0,0,0.6),
+      0 0 40px rgba(6,182,212,0.08),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+  
+    // Üst parlama
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 20%; right: 20%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    }
+  
+    h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #fff, var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  
+    p {
+      font-size: 0.95rem;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+    }
+  }
+  
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
+  .modal-close {
+    position: absolute;
+    top: 1.2rem; right: 1.2rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-muted);
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    cursor: none;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    &:hover {
+      color: #fff;
+      border-color: var(--cyan);
+      background: rgba(6,182,212,0.1);
+    }
+  }
+  
+  .modal-techs { margin-bottom: 1.5rem; }
+  
+  .modal-links {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .modal-btn {
+    background: var(--cyan);
+    color: #000;
+    padding: 0.75rem 1.8rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s;
+    letter-spacing: 0.3px;
+  
+    &:hover {
+      background: #fff;
+      box-shadow: 0 0 30px rgba(6,182,212,0.4);
+      transform: translateY(-2px);
+    }
+  
+    &.secondary {
+      background: transparent;
+      color: var(--cyan);
+      border: 1px solid rgba(6,182,212,0.4);
+  
+      &:hover {
+        background: rgba(6,182,212,0.1);
+        border-color: var(--cyan);
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .projects-grid { grid-template-columns: 1fr; }
+  }

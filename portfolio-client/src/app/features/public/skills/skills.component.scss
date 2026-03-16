@@ -1,0 +1,183 @@
+section {
+    background: var(--bg);
+    overflow: hidden;
+  }
+  
+  .loading {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 3rem;
+  }
+  
+  .skills-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+  }
+  
+  .skill-category {
+    .cat-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 1.8rem;
+      font-family: 'Fira Code', monospace;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+  
+      &::before {
+        content: '//';
+        opacity: 0.5;
+      }
+  
+      &::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, rgba(6,182,212,0.3), transparent);
+      }
+    }
+  }
+  
+  .hex-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  
+  .hex-item {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1rem 1.4rem;
+    cursor: default;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    min-width: 120px;
+  
+    // Parlayan arka plan efekti
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.4s;
+      border-radius: 14px;
+    }
+  
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+  
+    &:hover {
+      transform: translateY(-6px) scale(1.02);
+      border-color: rgba(6, 182, 212, 0.5);
+      box-shadow:
+        0 16px 40px rgba(0, 0, 0, 0.3),
+        0 0 20px rgba(6, 182, 212, 0.1);
+  
+      &::before { opacity: 1; }
+      &::after { opacity: 1; }
+  
+      .hex-name { color: #fff; }
+    }
+  
+    &.expert {
+      border-color: rgba(6, 182, 212, 0.35);
+      background: linear-gradient(135deg, rgba(6,182,212,0.08), rgba(6,182,212,0.03));
+  
+      &::before {
+        background: linear-gradient(135deg, rgba(6,182,212,0.12), transparent);
+      }
+  
+      .hex-name { color: var(--cyan); }
+      .hex-dot.filled { box-shadow: 0 0 6px var(--cyan); }
+    }
+  
+    &.advanced {
+      border-color: rgba(192, 192, 192, 0.2);
+      background: linear-gradient(135deg, rgba(192,192,192,0.05), transparent);
+  
+      &::before {
+        background: linear-gradient(135deg, rgba(192,192,192,0.1), transparent);
+      }
+  
+      .hex-dot.filled {
+        background: #c0c0c0;
+        box-shadow: 0 0 5px rgba(192,192,192,0.5);
+      }
+    }
+  
+    &.mid {
+      opacity: 0.8;
+    }
+  }
+  
+  .hex-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .hex-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    transition: color 0.3s;
+  }
+  
+  .hex-level {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    font-family: 'Fira Code', monospace;
+    letter-spacing: 0.5px;
+  }
+  
+  .hex-dots {
+    display: flex;
+    gap: 4px;
+    margin-top: 3px;
+  }
+  
+  .hex-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.3s;
+  
+    &.filled {
+      background: var(--cyan);
+      box-shadow: 0 0 4px rgba(6, 182, 212, 0.6);
+    }
+  }
+  
+  // Hover'da dot'lar parlasın
+  .hex-item:hover .hex-dot.filled {
+    box-shadow: 0 0 8px var(--cyan);
+    transform: scale(1.2);
+  }
+  
+  @media (max-width: 768px) {
+    .hex-grid {
+      gap: 0.5rem;
+    }
+  
+    .hex-item {
+      min-width: 100px;
+      padding: 0.8rem 1rem;
+    }
+  }

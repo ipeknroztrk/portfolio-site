@@ -1,0 +1,28 @@
+<nav [class.scrolled]="isScrolled">
+    <div class="nav-brand" (click)="scrollTo('hero')">
+      ipek<span>.dev</span>
+    </div>
+  
+    <ul class="nav-links" [class.open]="menuOpen">
+      <li *ngFor="let item of navItems"
+          [class.active]="activeSection === item.target"
+          (click)="scrollTo(item.target)">
+        {{ item.label }}
+      </li>
+    </ul>
+  
+    <div class="nav-controls">
+      <button class="toggle-btn lang-btn"
+              (click)="langService.toggle()"
+              [title]="langService.current() === 'tr' ? 'Switch to English' : 'Türkçeye Geç'">
+        {{ langService.current() === 'tr' ? 'EN' : 'TR' }}
+      </button>
+      <button class="nav-cta" (click)="scrollTo('contact')">
+        {{ langService.t.nav.contact }}
+      </button>
+    </div>
+  
+    <button class="hamburger" (click)="menuOpen = !menuOpen">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
