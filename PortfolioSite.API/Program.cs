@@ -1,42 +1,82 @@
 using System.Text;
+using AspNetCoreRateLimit;
+using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using PortfolioSite.API.Middleware;
 using PortfolioSite.Application.Data;
 using PortfolioSite.Application.DTOs;
 using PortfolioSite.Application.Interfaces;
 using PortfolioSite.Application.Services;
-using PortfolioSite.API.Middleware;
+
+// .env dosyasını yükle — tüm secret'lar buradan gelir
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-// CORS — Angular'ın API'ye erişmesine izin ver
+
+// Rate limiting
+builder.Services.AddMemoryCache();
+builder.Services.Configure<IpRateLimitOptions>(options =>
+{
+    options.EnableEndpointRateLimiting = true;
+    options.StackBlockedRequests = false;
+    options.RealIpHeader = "X-Real-IP";
+    options.ClientIdHeader = "X-ClientId";
+    options.GeneralRules = new List<RateLimitRule>
+    {
+        new RateLimitRule { Endpoint = "POST:/api/v1/auth/login", Period = "15m", Limit = 5 },
+        new RateLimitRule { Endpoint = "POST:/api/v1/contact", Period = "10m", Limit = 3 },
+        new RateLimitRule { Endpoint = "*", Period = "1m", Limit = 60 }
+    };
+});
+builder.Services.AddInMemoryRateLimiting();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        var allowedOrigins = new List<string> { "http://localhost:4200" };
+        
+        // Production domain varsa ekle
+        var productionDomain = Environment.GetEnvironmentVariable("ALLOWED_ORIGIN");
+        if (!string.IsNullOrEmpty(productionDomain))
+            allowedOrigins.Add(productionDomain);
+
+        policy.WithOrigins(allowedOrigins.ToArray())
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
 });
 
-// PostgreSQL bağlantısı — connection string appsettings.json'dan okunur
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+// PostgreSQL — .env'den oku, yoksa appsettings'e bak
+var dbConnection = Environment.GetEnvironmentVariable("DB_CONNECTION")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new Exception("DB_CONNECTION bulunamadı!");
 
-// JWT ayarlarını appsettings.json'daki "JwtSettings" bölümünden oku
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(dbConnection));
+
+// JWT Secret — .env'den oku
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
+    ?? builder.Configuration["JwtSettings:SecretKey"]
+    ?? throw new Exception("JWT_SECRET bulunamadı!");
+
+// JWT Secret'ı config'e yaz (JwtSettings servisi okusun diye)
+builder.Configuration["JwtSettings:SecretKey"] = jwtSecret;
+
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("JwtSettings"));
 
-// Bağımlılık enjeksiyonu — interface'e karşılık gelen servis sınıflarını kaydet
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-// JWT doğrulama ayarları
-var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
-var key = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
+// JWT doğrulama
+var key = Encoding.UTF8.GetBytes(jwtSecret);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -47,26 +87,24 @@ builder.Services.AddAuthentication(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = true,           // Token'ın kim tarafından üretildiğini doğrula
-        ValidateAudience = true,         // Token'ın kime hitap ettiğini doğrula
-        ValidateLifetime = true,         // Token süresi dolmuşsa reddet
-        ValidateIssuerSigningKey = true, // İmzayı doğrula
-        ValidIssuer = jwtSettings.Issuer,
-        ValidAudience = jwtSettings.Audience,
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(key),
-        ClockSkew = TimeSpan.Zero        // Varsayılan 5 dakika toleransı kaldır — token süresi tam dakikada dolar
+        ClockSkew = TimeSpan.Zero
     };
 });
 
 builder.Services.AddAuthorization();
 
-// Swagger — sadece geliştirme ortamında
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "Portfolio API", Version = "v1" });
-
-    // Swagger'a JWT token girme kutusu ekle
     c.AddSecurityDefinition("Bearer", new()
     {
         Name = "Authorization",
@@ -87,20 +125,18 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Tüm beklenmeyen hataları yakalar — stack trace dışarıya sızmaz
+app.UseIpRateLimiting();
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseCors("AllowAngular");
-
 app.UseSwagger();
 app.UseSwaggerUI();
-
-
 app.UseHttpsRedirection();
-app.UseAuthentication(); // Önce kimlik doğrula
-app.UseAuthorization();  // Sonra yetki kontrol et — sıra önemli!
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
-// Uygulama ilk başladığında admin yoksa otomatik oluştur
+// Seed
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();

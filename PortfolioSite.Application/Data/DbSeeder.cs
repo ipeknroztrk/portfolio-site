@@ -7,14 +7,17 @@ public static class DbSeeder
 {
     public static async Task SeedAsync(AppDbContext context)
     {
-        // Eğer zaten admin varsa tekrar oluşturma — her başlatmada çalışır ama sadece bir kez ekler
+        // Admin zaten varsa dokunma
         if (await context.AdminUsers.AnyAsync()) return;
+
+        // Şifreyi .env'den oku, yoksa varsayılan kullan
+        var password = Environment.GetEnvironmentVariable("ADMIN_PASSWORD")
+            ?? "Admin123!";
 
         var admin = new AdminUser
         {
-            Username = "admin",
-            // Şifreyi düz metin olarak saklamak güvensiz — BCrypt ile hashliyoruz
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+            Username = Environment.GetEnvironmentVariable("ADMIN_USERNAME") ?? "admin",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
             CreatedAt = DateTime.UtcNow
         };
 
