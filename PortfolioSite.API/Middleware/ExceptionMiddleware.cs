@@ -29,21 +29,19 @@ public class ExceptionMiddleware
         }
     }
 
-    private static Task HandleExceptionAsync(HttpContext context, Exception ex)
+   private static Task HandleExceptionAsync(HttpContext context, Exception ex)
+{
+    context.Response.ContentType = "application/json";
+    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+    var response = new
     {
-        context.Response.ContentType = "application/json";
-        // Tüm beklenmeyen hatalar 500 döner — hata detayı kullanıcıya gösterilmez
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        statusCode = context.Response.StatusCode,
+        message = "Sunucu hatasi olustu.",
+        detail = ex.Message + " | " + ex.InnerException?.Message
+    };
 
-        var response = new
-        {
-            statusCode = context.Response.StatusCode,
-            message = "Sunucu hatasi olustu.",
-            // detail şimdilik boş — geliştirme ortamında doldurmak istersen buraya ex.Message yazabilirsin
-            detail = string.Empty
-        };
-
-        var json = JsonSerializer.Serialize(response);
-        return context.Response.WriteAsync(json);
-    }
+    var json = JsonSerializer.Serialize(response);
+    return context.Response.WriteAsync(json);
+}
 }

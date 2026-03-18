@@ -11,7 +11,9 @@ using PortfolioSite.Application.Interfaces;
 using PortfolioSite.Application.Services;
 
 // .env dosyasını yükle — tüm secret'lar buradan gelir
-Env.Load();
+// .env dosyasını kesin yoldan yükle
+var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+Env.Load(envPath);
 
 var builder = WebApplication.CreateBuilder(args);
 

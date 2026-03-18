@@ -23,6 +23,12 @@ export class LoginComponent {
       this.router.navigate(['/admin']);
     }
   }
+  ngOnInit(): void {
+    // Zaten giriş yapmışsa dashboard'a yönlendir
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['/admin']);
+    }
+  }
 
   onSubmit(): void {
     if (!this.username || !this.password) {

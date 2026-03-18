@@ -29,34 +29,41 @@ public class ExperiencesController : ControllerBase
     }
 
     // Admin — yeni deneyim ekle
-    [Authorize]
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Experience experience)
-    {
-        _context.Experiences.Add(experience);
-        await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetAll), new { id = experience.Id }, experience);
-    }
+   [Authorize]
+[HttpPost]
+public async Task<IActionResult> Create([FromBody] Experience experience)
+{
+    // PostgreSQL UTC datetime zorunluluğu
+    experience.StartDate = DateTime.SpecifyKind(experience.StartDate, DateTimeKind.Utc);
+    if (experience.EndDate.HasValue)
+        experience.EndDate = DateTime.SpecifyKind(experience.EndDate.Value, DateTimeKind.Utc);
+
+    _context.Experiences.Add(experience);
+    await _context.SaveChangesAsync();
+    return CreatedAtAction(nameof(GetAll), new { id = experience.Id }, experience);
+}
 
     // Admin — deneyim güncelle
-    [Authorize]
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Experience experience)
-    {
-        var existing = await _context.Experiences.FindAsync(id);
-        if (existing == null) return NotFound();
+   [Authorize]
+[HttpPut("{id}")]
+public async Task<IActionResult> Update(int id, [FromBody] Experience experience)
+{
+    var existing = await _context.Experiences.FindAsync(id);
+    if (existing == null) return NotFound();
 
-        existing.Company = experience.Company;
-        existing.Position = experience.Position;
-        existing.Description = experience.Description;
-        existing.StartDate = experience.StartDate;
-        existing.EndDate = experience.EndDate;
-        existing.IsCurrent = experience.IsCurrent;
-        existing.OrderIndex = experience.OrderIndex;
+    existing.Company = experience.Company;
+    existing.Position = experience.Position;
+    existing.Description = experience.Description;
+    existing.StartDate = DateTime.SpecifyKind(experience.StartDate, DateTimeKind.Utc);
+    existing.EndDate = experience.EndDate.HasValue
+        ? DateTime.SpecifyKind(experience.EndDate.Value, DateTimeKind.Utc)
+        : null;
+    existing.IsCurrent = experience.IsCurrent;
+    existing.OrderIndex = experience.OrderIndex;
 
-        await _context.SaveChangesAsync();
-        return Ok(existing);
-    }
+    await _context.SaveChangesAsync();
+    return Ok(existing);
+}
 
     // Admin — deneyim sil
     [Authorize]

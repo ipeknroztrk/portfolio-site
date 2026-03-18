@@ -25,17 +25,27 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              },
-              {
-                "glob": "**/*",
-                "input": "src/assets",
-                "output": "assets"
-              }
-            ],
+           "assets": [
+  {
+    "glob": "**/*",
+    "input": "public"
+  },
+  {
+    "glob": "**/*",
+    "input": "src/assets",
+    "output": "assets"
+  },
+  {
+    "glob": "favicon.svg",
+    "input": "src",
+    "output": "/"
+  },
+  {
+    "glob": "favicon.ico",
+    "input": "src",
+    "output": "/"
+  }
+],
             "styles": [
               "src/styles.scss"
             ],
@@ -96,16 +106,26 @@
             "tsConfig": "tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
             "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              },
-              {
-                "glob": "**/*",
-                "input": "src/assets",
-                "output": "assets"
-              }
-            ],
+  {
+    "glob": "**/*",
+    "input": "public"
+  },
+  {
+    "glob": "**/*",
+    "input": "src/assets",
+    "output": "assets"
+  },
+  {
+    "glob": "favicon.svg",
+    "input": "src",
+    "output": "/"
+  },
+  {
+    "glob": "favicon.ico",
+    "input": "src",
+    "output": "/"
+  }
+],
             "styles": [
               "src/styles.scss"
             ],
