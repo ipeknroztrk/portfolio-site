@@ -133,6 +133,10 @@ section {
     font-size: 0.875rem;
     line-height: 1.75;
     flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   
   .tech-list {
@@ -302,4 +306,11 @@ section {
   
   @media (max-width: 768px) {
     .projects-grid { grid-template-columns: 1fr; }
+  }
+  .modal {
+    p {
+      -webkit-line-clamp: unset !important;
+      overflow: visible !important;
+      display: block !important;
+    }
   }

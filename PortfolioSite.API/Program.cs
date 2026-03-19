@@ -101,7 +101,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
-
+builder.Services.AddScoped<EmailService>();
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -131,8 +131,12 @@ app.UseIpRateLimiting();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseCors("AllowAngular");
-app.UseSwagger();
-app.UseSwaggerUI();
+// Swagger sadece development'ta
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

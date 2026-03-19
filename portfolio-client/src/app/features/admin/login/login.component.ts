@@ -1,52 +1,52 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   username = '';
   password = '';
-  isLoading = false;
   errorMessage = '';
+  isLoading = false;
+  showPassword = false;
 
-  constructor(private authService: AuthService, private router: Router) {
-    // Zaten giriş yapmışsa direkt dashboard'a gönder
-    if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/admin']);
-    }
-  }
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
   ngOnInit(): void {
-    // Zaten giriş yapmışsa dashboard'a yönlendir
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['/admin']);
     }
   }
 
-  onSubmit(): void {
+  login(): void {
     if (!this.username || !this.password) {
-      this.errorMessage = 'Kullanıcı adı ve şifre gereklidir.';
+      this.errorMessage = 'Kullanıcı adı ve şifre gerekli!';
       return;
     }
 
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.authService.login({ username: this.username, password: this.password }).subscribe({
-      next: () => {
-        this.router.navigate(['/admin']);
-      },
-      error: () => {
-        this.errorMessage = 'Kullanıcı adı veya şifre yanlış.';
-        this.isLoading = false;
-      }
-    });
+    this.authService.login({ username: this.username, password: this.password })
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/admin']);
+        },
+        error: () => {
+          this.isLoading = false;
+          this.errorMessage = 'Kullanıcı adı veya şifre hatalı!';
+        }
+      });
   }
 }

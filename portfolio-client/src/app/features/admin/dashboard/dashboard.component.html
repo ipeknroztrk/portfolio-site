@@ -1,177 +1,213 @@
 <div class="dashboard">
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-brand">Admin Panel</div>
-      <nav>
-        <button [class.active]="activeTab === 'projects'" (click)="activeTab = 'projects'">
-          Projeler
-        </button>
-        <button [class.active]="activeTab === 'experiences'" (click)="activeTab = 'experiences'">
-          Deneyimler
-        </button>
-        <button [class.active]="activeTab === 'skills'" (click)="activeTab = 'skills'">
-          Beceriler
-        </button>
-        <button [class.active]="activeTab === 'messages'" (click)="activeTab = 'messages'">
-          Mesajlar
-          <span class="badge" *ngIf="messages.length > 0">{{ messages.length }}</span>
-        </button>
-      </nav>
-      <button class="logout-btn" (click)="logout()">Çıkış Yap</button>
-    </aside>
-  
-    <!-- İçerik -->
-    <main class="content">
-  
-      <!-- Projeler -->
-      <div *ngIf="activeTab === 'projects'">
-        <h2>Projeler</h2>
-  
-        <div class="form-card">
-          <h3>{{ editingProjectId ? 'Projeyi Düzenle' : 'Yeni Proje Ekle' }}</h3>
-          <div class="form-grid">
-            <input [(ngModel)]="projectForm.title" placeholder="Başlık" />
-            <input [(ngModel)]="projectForm.techStack" placeholder="Tech Stack (virgülle ayır)" />
-            <input [(ngModel)]="projectForm.liveUrl" placeholder="Canlı URL" />
-            <input [(ngModel)]="projectForm.githubUrl" placeholder="GitHub URL" />
-            <input [(ngModel)]="projectForm.imageUrl" placeholder="Görsel URL" />
-            <input [(ngModel)]="projectForm.orderIndex" type="number" placeholder="Sıra" />
-          </div>
-          <textarea [(ngModel)]="projectForm.description" placeholder="Açıklama" rows="3"></textarea>
-          <div class="form-actions">
-            <label>
-              <input type="checkbox" [(ngModel)]="projectForm.isVisible" /> Görünür
-            </label>
-            <button class="btn-save" (click)="saveProject()">
-              {{ editingProjectId ? 'Güncelle' : 'Ekle' }}
-            </button>
-            <button class="btn-cancel" *ngIf="editingProjectId" (click)="resetProjectForm()">
-              İptal
-            </button>
-          </div>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <svg width="28" height="28" viewBox="0 0 32 32">
+        <rect width="32" height="32" rx="8" fill="#080b14" stroke="rgba(6,182,212,0.4)" stroke-width="1.5"/>
+        <text x="16" y="22" text-anchor="middle" font-family="monospace" font-size="16" font-weight="700" fill="#06b6d4">i.</text>
+      </svg>
+      <span>ipek<em>.dev</em></span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item" [class.active]="activeTab === 'projects'" (click)="activeTab = 'projects'">
+        <span class="nav-icon">📁</span> Projeler
+      </button>
+      <button class="nav-item" [class.active]="activeTab === 'experiences'" (click)="activeTab = 'experiences'">
+        <span class="nav-icon">💼</span> Deneyimler
+      </button>
+      <button class="nav-item" [class.active]="activeTab === 'skills'" (click)="activeTab = 'skills'">
+        <span class="nav-icon">⚡</span> Beceriler
+      </button>
+      <button class="nav-item" [class.active]="activeTab === 'messages'" (click)="activeTab = 'messages'">
+        <span class="nav-icon">✉️</span> Mesajlar
+        <span class="nav-badge" *ngIf="messages.length > 0">{{ messages.length }}</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a routerLink="/" class="nav-item" style="text-decoration:none; margin-bottom:0.3rem;">
+        <span class="nav-icon">🌐</span> Siteyi Gör
+      </a>
+      <button class="logout-btn" (click)="logout()">
+        <span>🚪</span> Çıkış Yap
+      </button>
+    </div>
+  </aside>
+
+  <!-- Ana içerik -->
+  <main class="main-content">
+
+    <!-- Projeler -->
+    <div *ngIf="activeTab === 'projects'">
+      <div class="page-header">
+        <div>
+          <span class="page-tag">// admin panel</span>
+          <h1>Projeler</h1>
         </div>
-  
-        <div class="list">
-          <div class="list-item" *ngFor="let p of projects">
-            <div class="item-info">
-              <strong>{{ p.title }}</strong>
-              <span>{{ p.techStack }}</span>
-            </div>
-            <div class="item-actions">
-              <button class="btn-edit" (click)="editProject(p)">Düzenle</button>
-              <button class="btn-delete" (click)="deleteProject(p.id!)">Sil</button>
-            </div>
+      </div>
+
+      <div class="form-card">
+        <h3>{{ editingProjectId ? '✏️ Projeyi Düzenle' : '+ Yeni Proje Ekle' }}</h3>
+        <div class="form-grid">
+          <input [(ngModel)]="projectForm.title" placeholder="Başlık" />
+          <input [(ngModel)]="projectForm.techStack" placeholder="Tech Stack (virgülle ayır)" />
+          <input [(ngModel)]="projectForm.liveUrl" placeholder="Canlı URL" />
+          <input [(ngModel)]="projectForm.githubUrl" placeholder="GitHub URL" />
+          <input [(ngModel)]="projectForm.imageUrl" placeholder="Görsel URL" />
+          <input [(ngModel)]="projectForm.orderIndex" type="number" placeholder="Sıra" />
+        </div>
+        <textarea [(ngModel)]="projectForm.description" placeholder="Açıklama" rows="3" class="form-full"></textarea>
+        <div class="form-actions">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="projectForm.isVisible" /> Görünür
+          </label>
+          <button class="btn-primary" (click)="saveProject()">
+            {{ editingProjectId ? 'Güncelle' : 'Ekle' }}
+          </button>
+          <button class="btn-secondary" *ngIf="editingProjectId" (click)="resetProjectForm()">
+            İptal
+          </button>
+        </div>
+      </div>
+
+      <div class="items-list">
+        <div class="list-item" *ngFor="let p of projects">
+          <div class="item-info">
+            <h4>{{ p.title }}</h4>
+            <p>{{ p.techStack }}</p>
+          </div>
+          <div class="item-actions">
+            <button class="btn-edit" (click)="editProject(p)">Düzenle</button>
+            <button class="btn-danger" (click)="deleteProject(p.id!)">Sil</button>
           </div>
         </div>
       </div>
-  
-      <!-- Deneyimler -->
-      <div *ngIf="activeTab === 'experiences'">
-        <h2>Deneyimler</h2>
-  
-        <div class="form-card">
-          <h3>{{ editingExperienceId ? 'Deneyimi Düzenle' : 'Yeni Deneyim Ekle' }}</h3>
-          <div class="form-grid">
-            <input [(ngModel)]="experienceForm.company" placeholder="Şirket" />
-            <input [(ngModel)]="experienceForm.position" placeholder="Pozisyon" />
-            <input [(ngModel)]="experienceForm.startDate" type="date" placeholder="Başlangıç" />
-            <input [(ngModel)]="experienceForm.endDate" type="date" placeholder="Bitiş" />
-            <input [(ngModel)]="experienceForm.orderIndex" type="number" placeholder="Sıra" />
-          </div>
-          <textarea [(ngModel)]="experienceForm.description" placeholder="Açıklama" rows="3"></textarea>
-          <div class="form-actions">
-            <label>
-              <input type="checkbox" [(ngModel)]="experienceForm.isCurrent" /> Halen devam ediyor
-            </label>
-            <button class="btn-save" (click)="saveExperience()">
-              {{ editingExperienceId ? 'Güncelle' : 'Ekle' }}
-            </button>
-            <button class="btn-cancel" *ngIf="editingExperienceId" (click)="resetExperienceForm()">
-              İptal
-            </button>
-          </div>
+    </div>
+
+    <!-- Deneyimler -->
+    <div *ngIf="activeTab === 'experiences'">
+      <div class="page-header">
+        <div>
+          <span class="page-tag">// admin panel</span>
+          <h1>Deneyimler</h1>
         </div>
-  
-        <div class="list">
-          <div class="list-item" *ngFor="let e of experiences">
-            <div class="item-info">
-              <strong>{{ e.position }}</strong>
-              <span>{{ e.company }}</span>
-            </div>
-            <div class="item-actions">
-              <button class="btn-edit" (click)="editExperience(e)">Düzenle</button>
-              <button class="btn-delete" (click)="deleteExperience(e.id!)">Sil</button>
-            </div>
+      </div>
+
+      <div class="form-card">
+        <h3>{{ editingExperienceId ? '✏️ Deneyimi Düzenle' : '+ Yeni Deneyim Ekle' }}</h3>
+        <div class="form-grid">
+          <input [(ngModel)]="experienceForm.company" placeholder="Şirket" />
+          <input [(ngModel)]="experienceForm.position" placeholder="Pozisyon" />
+          <input [(ngModel)]="experienceForm.startDate" type="date" />
+          <input [(ngModel)]="experienceForm.endDate" type="date" />
+          <input [(ngModel)]="experienceForm.orderIndex" type="number" placeholder="Sıra" />
+        </div>
+        <textarea [(ngModel)]="experienceForm.description" placeholder="Açıklama" rows="3" class="form-full"></textarea>
+        <div class="form-actions">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="experienceForm.isCurrent" /> Halen devam ediyor
+          </label>
+          <button class="btn-primary" (click)="saveExperience()">
+            {{ editingExperienceId ? 'Güncelle' : 'Ekle' }}
+          </button>
+          <button class="btn-secondary" *ngIf="editingExperienceId" (click)="resetExperienceForm()">
+            İptal
+          </button>
+        </div>
+      </div>
+
+      <div class="items-list">
+        <div class="list-item" *ngFor="let e of experiences">
+          <div class="item-info">
+            <h4>{{ e.position }}</h4>
+            <p>{{ e.company }}</p>
+          </div>
+          <div class="item-actions">
+            <button class="btn-edit" (click)="editExperience(e)">Düzenle</button>
+            <button class="btn-danger" (click)="deleteExperience(e.id!)">Sil</button>
           </div>
         </div>
       </div>
-  
-      <!-- Beceriler -->
-      <div *ngIf="activeTab === 'skills'">
-        <h2>Beceriler</h2>
-  
-        <div class="form-card">
-          <h3>{{ editingSkillId ? 'Beceriyi Düzenle' : 'Yeni Beceri Ekle' }}</h3>
-          <div class="form-grid">
-            <input [(ngModel)]="skillForm.name" placeholder="Beceri Adı" />
-            <input [(ngModel)]="skillForm.category" placeholder="Kategori (Frontend, Backend...)" />
-            <input [(ngModel)]="skillForm.level" type="number" min="1" max="5" placeholder="Seviye (1-5)" />
-            <input [(ngModel)]="skillForm.orderIndex" type="number" placeholder="Sıra" />
-          </div>
-          <div class="form-actions">
-            <label>
-              <input type="checkbox" [(ngModel)]="skillForm.isVisible" /> Görünür
-            </label>
-            <button class="btn-save" (click)="saveSkill()">
-              {{ editingSkillId ? 'Güncelle' : 'Ekle' }}
-            </button>
-            <button class="btn-cancel" *ngIf="editingSkillId" (click)="resetSkillForm()">
-              İptal
-            </button>
-          </div>
+    </div>
+
+    <!-- Beceriler -->
+    <div *ngIf="activeTab === 'skills'">
+      <div class="page-header">
+        <div>
+          <span class="page-tag">// admin panel</span>
+          <h1>Beceriler</h1>
         </div>
-  
-        <div class="list">
-          <div class="list-item" *ngFor="let s of skills">
-            <div class="item-info">
-              <strong>{{ s.name }}</strong>
-              <span>{{ s.category }} — Seviye {{ s.level }}/5</span>
+      </div>
+
+      <div class="form-card">
+        <h3>{{ editingSkillId ? '✏️ Beceriyi Düzenle' : '+ Yeni Beceri Ekle' }}</h3>
+        <div class="form-grid">
+          <input [(ngModel)]="skillForm.name" placeholder="Beceri Adı" />
+          <input [(ngModel)]="skillForm.category" placeholder="Kategori (Frontend, Backend...)" />
+          <input [(ngModel)]="skillForm.level" type="number" min="1" max="5" placeholder="Seviye (1-5)" />
+          <input [(ngModel)]="skillForm.orderIndex" type="number" placeholder="Sıra" />
+        </div>
+        <div class="form-actions">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="skillForm.isVisible" /> Görünür
+          </label>
+          <button class="btn-primary" (click)="saveSkill()">
+            {{ editingSkillId ? 'Güncelle' : 'Ekle' }}
+          </button>
+          <button class="btn-secondary" *ngIf="editingSkillId" (click)="resetSkillForm()">
+            İptal
+          </button>
+        </div>
+      </div>
+
+      <div class="items-list">
+        <div class="list-item" *ngFor="let s of skills">
+          <div class="item-info">
+            <h4>{{ s.name }}</h4>
+            <p>{{ s.category }}</p>
+            <div class="skill-level">
+              <span *ngFor="let i of [1,2,3,4,5]" [class.filled]="i <= s.level"></span>
             </div>
-            <div class="item-actions">
-              <button class="btn-edit" (click)="editSkill(s)">Düzenle</button>
-              <button class="btn-delete" (click)="deleteSkill(s.id!)">Sil</button>
-            </div>
+          </div>
+          <div class="item-actions">
+            <button class="btn-edit" (click)="editSkill(s)">Düzenle</button>
+            <button class="btn-danger" (click)="deleteSkill(s.id!)">Sil</button>
           </div>
         </div>
       </div>
-  
-      <!-- Mesajlar -->
-      <div *ngIf="activeTab === 'messages'">
-        <h2>Gelen Mesajlar</h2>
-  
-        <div class="list">
-          <div class="list-item message-item"
-               *ngFor="let m of messages"
-               [class.unread]="!m.isRead">
-            <div class="item-info">
-              <strong>{{ m.fullName }}</strong>
-              <span>{{ m.email }}</span>
-              <p class="message-text">{{ m.message }}</p>
-            </div>
-            <div class="item-actions">
-              <button class="btn-edit" *ngIf="!m.isRead" (click)="markAsRead(m.id!)">
-                Okundu
-              </button>
-              <button class="btn-delete" (click)="deleteMessage(m.id!)">Sil</button>
-            </div>
-          </div>
-  
-          <div class="empty" *ngIf="messages.length === 0">
-            Henüz mesaj yok.
-          </div>
+    </div>
+
+    <!-- Mesajlar -->
+    <div *ngIf="activeTab === 'messages'">
+      <div class="page-header">
+        <div>
+          <span class="page-tag">// admin panel</span>
+          <h1>Gelen Mesajlar</h1>
         </div>
       </div>
-  
-    </main>
-  </div>
+
+      <div class="items-list">
+        <div class="message-card" *ngFor="let m of messages" [class.unread]="!m.isRead">
+          <div class="msg-header">
+            <strong>{{ m.fullName }}</strong>
+          <span>{{ m.id }}</span>
+          </div>
+          <div class="msg-email">{{ m.email }}</div>
+          <div class="msg-text">{{ m.message }}</div>
+          <div class="form-actions" style="margin-top:0.8rem">
+            <button class="btn-edit" *ngIf="!m.isRead" (click)="markAsRead(m.id!)">✓ Okundu</button>
+            <button class="btn-danger" (click)="deleteMessage(m.id!)">Sil</button>
+          </div>
+        </div>
+
+        <div style="text-align:center; color:rgba(226,232,240,0.3); padding:3rem; font-family:'Fira Code',monospace; font-size:0.85rem;"
+             *ngIf="messages.length === 0">
+          // henüz mesaj yok
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>

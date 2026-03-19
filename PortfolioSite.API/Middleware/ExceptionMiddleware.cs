@@ -5,43 +5,42 @@ namespace PortfolioSite.API.Middleware;
 
 public class ExceptionMiddleware
 {
-    private readonly RequestDelegate _next; // Sonraki middleware'e geçiş için
-    private readonly ILogger<ExceptionMiddleware> _logger;
+    private readonly RequestDelegate _next;
+    private readonly IWebHostEnvironment _env;
 
-    public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
+    public ExceptionMiddleware(RequestDelegate next, IWebHostEnvironment env)
     {
         _next = next;
-        _logger = logger;
+        _env = env;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
         try
         {
-            // İsteği bir sonraki middleware'e ilet
             await _next(context);
         }
         catch (Exception ex)
         {
-            // Hata logla — stack trace sadece sunucuda kalır, dışarıya sızmaz
-            _logger.LogError(ex, "Beklenmeyen hata: {Message}", ex.Message);
             await HandleExceptionAsync(context, ex);
         }
     }
 
-   private static Task HandleExceptionAsync(HttpContext context, Exception ex)
-{
-    context.Response.ContentType = "application/json";
-    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
-    var response = new
+    private Task HandleExceptionAsync(HttpContext context, Exception ex)
     {
-        statusCode = context.Response.StatusCode,
-        message = "Sunucu hatasi olustu.",
-        detail = ex.Message + " | " + ex.InnerException?.Message
-    };
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-    var json = JsonSerializer.Serialize(response);
-    return context.Response.WriteAsync(json);
-}
+        var response = new
+        {
+            statusCode = context.Response.StatusCode,
+            message = "Sunucu hatasi olustu.",
+            // Production'da detail gizle
+            detail = _env.IsDevelopment()
+                ? ex.Message + " | " + ex.InnerException?.Message
+                : ""
+        };
+
+        return context.Response.WriteAsync(JsonSerializer.Serialize(response));
+    }
 }
