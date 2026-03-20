@@ -1,38 +1,51 @@
 <nav [class.scrolled]="isScrolled">
-    <div class="nav-brand" (click)="scrollTo('hero')">
-      ipek<span>.dev</span>
-    </div>
-  
-    <div class="nav-links">
-      <button class="nav-link" [class.active]="activeSection === 'about'" (click)="scrollTo('about')">
-        {{ langService.t.nav.about }}
-      </button>
-      <button class="nav-link" [class.active]="activeSection === 'experience'" (click)="scrollTo('experience')">
-        {{ langService.t.nav.experience }}
-      </button>
-      <button class="nav-link" [class.active]="activeSection === 'projects'" (click)="scrollTo('projects')">
-        {{ langService.t.nav.projects }}
-      </button>
-      <button class="nav-link" [class.active]="activeSection === 'skills'" (click)="scrollTo('skills')">
-        {{ langService.t.nav.skills }}
-      </button>
-      <button class="nav-link" [class.active]="activeSection === 'contact'" (click)="scrollTo('contact')">
-        {{ langService.t.nav.contact }}
-      </button>
-    </div>
-  
-    <div class="nav-controls">
-      <button class="toggle-btn lang-btn"
-              (click)="langService.toggle()"
-              [title]="langService.current() === 'tr' ? 'Switch to English' : 'Türkçeye Geç'">
-        {{ langService.current() === 'tr' ? 'EN' : 'TR' }}
-      </button>
-      <button class="nav-cta" (click)="scrollTo('contact')">
-        {{ langService.t.nav.contact }}
-      </button>
-    </div>
-  
-    <button class="hamburger" (click)="menuOpen = !menuOpen">
-      <span></span><span></span><span></span>
+  <div class="nav-brand" (click)="scrollTo('hero')">
+    <svg width="24" height="24" viewBox="0 0 32 32" style="flex-shrink:0">
+      <rect width="32" height="32" rx="8" fill="#080b14" stroke="rgba(6,182,212,0.3)" stroke-width="1"/>
+      <text x="16" y="22" text-anchor="middle" font-family="monospace" font-size="16" font-weight="700" fill="#06b6d4">i.</text>
+    </svg>
+    ipek<span>.dev</span>
+  </div>
+
+  <div class="nav-links">
+    <button class="nav-link" [class.active]="activeSection === 'about'" (click)="scrollTo('about')">
+      {{ langService.t.nav.about }}
     </button>
-  </nav>
+    <button class="nav-link" [class.active]="activeSection === 'experience'" (click)="scrollTo('experience')">
+      {{ langService.t.nav.experience }}
+    </button>
+    <button class="nav-link" [class.active]="activeSection === 'projects'" (click)="scrollTo('projects')">
+      {{ langService.t.nav.projects }}
+    </button>
+    <button class="nav-link" [class.active]="activeSection === 'skills'" (click)="scrollTo('skills')">
+      {{ langService.t.nav.skills }}
+    </button>
+    <button class="nav-link" [class.active]="activeSection === 'contact'" (click)="scrollTo('contact')">
+      {{ langService.t.nav.contact }}
+    </button>
+  </div>
+
+  <div class="nav-controls">
+    <!-- Oyun butonu -->
+    <div class="game-btn-wrapper">
+      <button class="game-btn" (click)="scrollTo('game')">✦</button>
+      <div class="game-tooltip">
+        <span>🌟 Yıldız Avcısı</span>
+        <small>// mola ver, oyna</small>
+      </div>
+    </div>
+
+    <button class="toggle-btn lang-btn"
+            (click)="langService.toggle()"
+            [title]="langService.current() === 'tr' ? 'Switch to English' : 'Türkçeye Geç'">
+      {{ langService.current() === 'tr' ? 'EN' : 'TR' }}
+    </button>
+    <button class="nav-cta" (click)="scrollTo('contact')">
+      {{ langService.t.nav.contact }}
+    </button>
+  </div>
+
+  <button class="hamburger" (click)="menuOpen = !menuOpen" aria-label="Menü">
+    <span></span><span></span><span></span>
+  </button>
+</nav>

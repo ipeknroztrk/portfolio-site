@@ -13,7 +13,7 @@ export const TRANSLATIONS = {
     },
     hero: {
       greeting: '// Merhaba, ben',
-      titles: ['Full Stack Developer', '.NET Backend Developer'],
+      titles: ['.NET Backend Developer', 'Full Stack Developer', 'ASP.NET Core Geliştirici'],
       desc: 'ASP.NET Core, Entity Framework Core ve Angular ile modern, ölçeklenebilir web uygulamaları geliştiriyorum. Temiz mimari ve güvenli kod önceliğimdir.',
       cta1: 'Projelerimi Gör',
       cta2: 'İletişime Geç',
@@ -21,9 +21,9 @@ export const TRANSLATIONS = {
     about: {
       tag: '// hakkımda',
       title: 'Merhaba, ben İpek 👋',
-      p1: 'Trakya Üniversitesi Bilgisayar Mühendisliği mezunuyum (Haziran 2025). ASP.NET Core, Entity Framework Core ve PostgreSQL ile backend geliştirme konusunda güçlü pratik deneyime sahibim.',
-      p2: 'VakıfBank\'ta iki kez .NET stajı yaptım — hazine işlemleri ve ödeme sistemleri alanında gerçek dünya projeleri geliştirdim. BilgeAdam\'da full-stack eğitimi ile Angular ve React\'e de hakimim.',
-      p3: 'Temiz mimari, güvenli kod ve sürdürülebilir sistemler kurmak temel önceliğimdir. Hızlı öğrenen, takım uyumlu bir geliştirici olarak yeni fırsatlar arıyorum.',
+      p1: 'Trakya Üniversitesi Bilgisayar Mühendisliği bölümünden Haziran 2025\'te mezun oldum. Eğitim sürecimde ASP.NET Core, Entity Framework Core ve PostgreSQL ile güçlü bir backend temeli oluşturdum.',
+      p2: 'VakıfBank\'ta iki farklı birimde (Hazine İşlemleri ve Ödeme Sistemleri) .NET Backend stajı tamamladım. Her iki stajda da production ortamında kullanılan gerçek sistemlere katkı sağladım. Uyumsoft\'ta yazılım stajı ve TEKNOFEST\'te İHA yazılım ekibi deneyimlerim de bulunmaktadır.',
+      p3: 'Odak noktam .NET Backend geliştirme — temiz mimari, güvenli API tasarımı ve ölçeklenebilir sistemler. Angular ile full-stack projeler de geliştirebildiğimden, uçtan uca düşünebilen bir backend developer olarak fırsatlar arıyorum.',
       location: 'Konum',
       email: 'E-posta',
       status: 'Durum',
@@ -32,10 +32,10 @@ export const TRANSLATIONS = {
       langVal: 'Türkçe (Ana dil), İngilizce (Orta)',
       cvBtn: 'CV İndir',
       stats: [
-        { value: '2+', label: 'Yıl Deneyim' },
+        { value: '4', label: 'Staj' },
         { value: '5+', label: 'Proje' },
-        { value: '3', label: 'Staj' },
         { value: '3.10', label: 'GPA' },
+        { value: '2025', label: 'Mezuniyet' },
       ]
     },
     experience: {
@@ -87,7 +87,7 @@ export const TRANSLATIONS = {
     },
     hero: {
       greeting: '// Hello, I\'m',
-      titles: ['Full Stack Developer', '.NET Backend Developer'],
+      titles: ['.NET Backend Developer', 'Full Stack Developer', 'ASP.NET Core Developer'],
       desc: 'I build modern, scalable web applications with ASP.NET Core, Entity Framework Core and Angular. Clean architecture and secure code are my priorities.',
       cta1: 'View Projects',
       cta2: 'Get In Touch',
@@ -95,9 +95,9 @@ export const TRANSLATIONS = {
     about: {
       tag: '// about',
       title: 'Hi, I\'m İpek 👋',
-      p1: 'I\'m a Computer Engineering graduate from Trakya University (June 2025). I have strong hands-on experience in backend development with ASP.NET Core, Entity Framework Core, and PostgreSQL.',
-      p2: 'I completed two .NET internships at VakıfBank — developing real-world projects in treasury operations and payment systems. Through BilgeAdam\'s full-stack training, I also gained solid skills in Angular and React.',
-      p3: 'Clean architecture, secure code, and building maintainable systems are my top priorities. I\'m a fast learner and team-oriented developer looking for new opportunities.',
+      p1: 'I graduated from Trakya University, Computer Engineering in June 2025. Throughout my studies, I built a strong backend foundation with ASP.NET Core, Entity Framework Core, and PostgreSQL.',
+      p2: 'I completed two .NET Backend internships at VakıfBank across two different departments — Treasury Operations and Payment Systems — contributing to real production systems. I also have internship experience at Uyumsoft and was part of a UAV software team at TEKNOFEST.',
+      p3: 'My focus is .NET Backend development — clean architecture, secure API design, and scalable systems. Since I can also build full-stack projects with Angular, I\'m looking for opportunities as a backend developer who can think end-to-end.',
       location: 'Location',
       email: 'Email',
       status: 'Status',
@@ -106,10 +106,10 @@ export const TRANSLATIONS = {
       langVal: 'Turkish (Native), English (Intermediate)',
       cvBtn: 'Download CV',
       stats: [
-        { value: '2+', label: 'Years Exp.' },
+        { value: '4', label: 'Internships' },
         { value: '5+', label: 'Projects' },
-        { value: '3', label: 'Internships' },
         { value: '3.10', label: 'GPA' },
+        { value: '2025', label: 'Graduate' },
       ]
     },
     experience: {

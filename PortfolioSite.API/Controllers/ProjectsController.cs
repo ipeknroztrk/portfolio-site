@@ -18,16 +18,16 @@ public class ProjectsController : ControllerBase
     }
 
     // Public — herkes görebilir
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
-    {
-        var projects = await _context.Projects
-            .Where(p => p.IsVisible)
-            .OrderBy(p => p.OrderIndex)
-            .ToListAsync();
-
-        return Ok(projects);
-    }
+   [HttpGet]
+[ResponseCache(Duration = 300)] // 5 dakika cache
+public async Task<IActionResult> GetAll()
+{
+    var projects = await _context.Projects
+        .Where(p => p.IsVisible)
+        .OrderBy(p => p.OrderIndex)
+        .ToListAsync();
+    return Ok(projects);
+}
 
     // Sadece admin görebilir — tüm projeler (görünmeyenler dahil)
     [Authorize]

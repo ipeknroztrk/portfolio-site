@@ -181,3 +181,58 @@ section {
       padding: 0.8rem 1rem;
     }
   }
+  // Backend kategori öne çıksın
+.primary-cat {
+  .cat-title {
+    color: var(--cyan);
+    font-size: 0.85rem;
+
+    &::after {
+      background: linear-gradient(90deg, rgba(6,182,212,0.5), rgba(192,192,192,0.2), transparent);
+    }
+  }
+}
+
+.primary-cat-item {
+  &.expert {
+    border-color: rgba(6,182,212,0.5) !important;
+    box-shadow: 0 0 20px rgba(6,182,212,0.08);
+  }
+}
+
+// Kategori ikonu
+.cat-icon {
+  font-size: 1rem;
+  margin-right: 0.3rem;
+}
+
+// Kategori skill sayısı
+.cat-count {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: rgba(6,182,212,0.4);
+  font-family: 'Fira Code', monospace;
+  background: rgba(6,182,212,0.08);
+  border: 1px solid rgba(6,182,212,0.15);
+  padding: 0.1rem 0.5rem;
+  border-radius: 20px;
+}
+
+// Expert rozeti
+.hex-item {
+  position: relative;
+}
+
+.expert-badge {
+  position: absolute;
+  top: -6px; right: -6px;
+  font-size: 0.7rem;
+  color: #fbbf24;
+  text-shadow: 0 0 8px #fbbf24;
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.3); }
+}

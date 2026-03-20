@@ -20,6 +20,11 @@ export class HeroComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.typeWriter();
+  
+    // 🔥 performans için ekliyoruz
+    setTimeout(() => {
+      document.getElementById('hero')?.classList.add('loaded');
+    }, 600);
   }
 
   ngOnDestroy(): void {

@@ -19,6 +19,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+// Response caching
+builder.Services.AddResponseCaching();
+builder.Services.AddMemoryCache();
+
 // Rate limiting
 builder.Services.AddMemoryCache();
 builder.Services.Configure<IpRateLimitOptions>(options =>
@@ -139,6 +143,7 @@ if (app.Environment.IsDevelopment())
 }
 app.UseHttpsRedirection();
 app.UseAuthentication();
+app.UseResponseCaching();
 app.UseAuthorization();
 app.MapControllers();
 

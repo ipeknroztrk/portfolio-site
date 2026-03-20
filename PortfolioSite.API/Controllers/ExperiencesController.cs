@@ -19,6 +19,7 @@ public class ExperiencesController : ControllerBase
 
     // Public — herkes görebilir
     [HttpGet]
+    [ResponseCache(Duration = 300)] // 5 dakika cache
     public async Task<IActionResult> GetAll()
     {
         var experiences = await _context.Experiences

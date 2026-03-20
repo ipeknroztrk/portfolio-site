@@ -36,18 +36,76 @@ export class NavbarComponent {
     this.updateActiveSection();
   }
   scrollTo(sectionId: string): void {
-    console.log('scrollTo çağrıldı:', sectionId);
     this.menuOpen = false;
+  
+    // Oyun butonuna tıklanınca yıldız efekti
+    if (sectionId === 'game') {
+      this.spawnStars();
+    }
   
     setTimeout(() => {
       const el = document.getElementById(sectionId);
-      console.log('element:', el);
+      if (!el) return;
+      const y = el.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }, sectionId === 'game' ? 600 : 10);
+  }
+  
+  private starInterval: any;
+
+  private spawnStars(): void {
+    const colors = ['#fbbf24', '#06b6d4', '#c0c0c0', '#fff', '#fbbf24'];
+  
+    // CSS animasyonu ekle
+    if (!document.getElementById('star-fall-style')) {
+      const style = document.createElement('style');
+      style.id = 'star-fall-style';
+      style.textContent = `
+        @keyframes starFall {
+          0% { transform: translateY(-20px) rotate(0deg) scale(1); opacity: 1; }
+          100% { transform: translateY(110vh) rotate(720deg) scale(0.3); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  
+    // Sürekli yıldız spawn et
+    clearInterval(this.starInterval);
+    this.starInterval = setInterval(() => {
+      for (let i = 0; i < 3; i++) {
+        const star = document.createElement('div');
+        const symbols = ['✦', '★', '✸', '✺', '⭐'];
+        star.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
+        const duration = 0.8 + Math.random() * 1.2;
+        star.style.cssText = `
+          position: fixed;
+          z-index: 999999;
+          pointer-events: none;
+          font-size: ${10 + Math.random() * 24}px;
+          color: ${colors[Math.floor(Math.random() * colors.length)]};
+          left: ${Math.random() * 100}vw;
+          top: -30px;
+          animation: starFall ${duration}s ease-in forwards;
+          text-shadow: 0 0 8px currentColor;
+        `;
+        document.body.appendChild(star);
+        setTimeout(() => star.remove(), duration * 1000 + 100);
+      }
+    }, 80);
+  
+    // Game section'a ulaşınca durdur
+    setTimeout(() => {
+      const el = document.getElementById('game');
       if (!el) return;
   
-      const y = el.getBoundingClientRect().top + window.scrollY - 80;
-      console.log('y:', y, 'window.scrollY:', window.scrollY);
-      window.scrollTo({ top: y, behavior: 'smooth' });
-    }, 10);
+      const checkArrival = setInterval(() => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= 150) {
+          clearInterval(this.starInterval);
+          clearInterval(checkArrival);
+        }
+      }, 100);
+    }, 200);
   }
   
   private updateActiveSection(): void {
