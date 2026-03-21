@@ -20,7 +20,7 @@ public class EmailService
 
         var emailData = new
         {
-            from = $"İpek Nur Öztürk <{_from}>",
+            from = $"İpek Nur Öztürk <onboarding@resend.dev>",
             to = new[] { toEmail },
             subject = "Mesajınız Alındı — ipekozturk.com",
             html = $@"
