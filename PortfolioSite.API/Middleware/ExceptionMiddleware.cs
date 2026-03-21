@@ -26,21 +26,19 @@ public class ExceptionMiddleware
         }
     }
 
-    private Task HandleExceptionAsync(HttpContext context, Exception ex)
+   private Task HandleExceptionAsync(HttpContext context, Exception ex)
+{
+    context.Response.ContentType = "application/json";
+    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+    var response = new
     {
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        statusCode = context.Response.StatusCode,
+        message = ex.Message,
+        detail = ex.InnerException?.Message,
+        stackTrace = ex.StackTrace
+    };
 
-        var response = new
-        {
-            statusCode = context.Response.StatusCode,
-            message = "Sunucu hatasi olustu.",
-            // Production'da detail gizle
-            detail = _env.IsDevelopment()
-                ? ex.Message + " | " + ex.InnerException?.Message
-                : ""
-        };
-
-        return context.Response.WriteAsync(JsonSerializer.Serialize(response));
-    }
+    return context.Response.WriteAsync(JsonSerializer.Serialize(response));
+}
 }
