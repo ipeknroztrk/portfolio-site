@@ -78,7 +78,7 @@ public class EmailService
         email.Body = builder.ToMessageBody();
 
         using var smtp = new SmtpClient();
-        await smtp.ConnectAsync(_host, _port, SecureSocketOptions.StartTls);
+       await smtp.ConnectAsync(_host, 465, SecureSocketOptions.SslOnConnect);
         await smtp.AuthenticateAsync(_user, _pass);
         await smtp.SendAsync(email);
         await smtp.DisconnectAsync(true);
