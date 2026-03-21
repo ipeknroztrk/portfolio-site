@@ -52,7 +52,7 @@ public class ContactController : ControllerBase
         message.FullName = message.FullName.Trim();
         message.Email = message.Email.Trim().ToLower();
         message.Message = message.Message.Trim();
-        message.SentAt = DateTime.UtcNow;
+     message.SentAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
         message.IsRead = false;
 
         _context.ContactMessages.Add(message);
