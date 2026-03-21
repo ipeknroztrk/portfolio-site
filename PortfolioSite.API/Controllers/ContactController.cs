@@ -43,12 +43,13 @@ public class ContactController : ControllerBase
             return BadRequest(new { error = "Gecerli bir email adresi giriniz." });
 
         var tenMinutesAgo = DateTime.UtcNow.AddMinutes(-10);
-        var recentMessage = await _context.ContactMessages
-            .AnyAsync(m => m.Email == message.Email && m.SentAt > tenMinutesAgo);
+       var recentMessage = await _context.ContactMessages
+    .Where(m => m.Email == message.Email && m.SentAt > tenMinutesAgo)
+    .Select(m => m.Id)
+    .FirstOrDefaultAsync();
 
-        if (recentMessage)
-            return BadRequest(new { error = "Cok fazla mesaj gonderdiniz. Lutfen bekleyiniz." });
-
+if (recentMessage != 0)
+    return BadRequest(new { error = "Cok fazla mesaj gonderdiniz. Lutfen bekleyiniz." });
         message.FullName = message.FullName.Trim();
         message.Email = message.Email.Trim().ToLower();
         message.Message = message.Message.Trim();

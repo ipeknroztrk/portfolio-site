@@ -72,8 +72,15 @@ var dbConnection = Environment.GetEnvironmentVariable("DB_CONNECTION")
     ?? throw new Exception("DB_CONNECTION bulunamadı!");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(dbConnection));
-
+    options.UseNpgsql(
+        dbConnection,
+        o =>
+        {
+            o.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(10),
+                errorCodesToAdd: null);
+        }));
 // JWT Secret — .env'den oku
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
     ?? builder.Configuration["JwtSettings:SecretKey"]
