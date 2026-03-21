@@ -140,11 +140,8 @@ app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseCors("AllowAngular");
 // Swagger sadece development'ta
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 //app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseResponseCaching();
