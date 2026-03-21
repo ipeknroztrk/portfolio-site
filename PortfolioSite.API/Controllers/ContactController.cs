@@ -60,14 +60,17 @@ if (recentMessage != 0)
         await _context.SaveChangesAsync();
 
         // Onay emaili gönder — hata olursa mesaj yine de kaydedilsin
-        try
-        {
-            await _emailService.SendConfirmationEmailAsync(message.Email, message.FullName);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Email gönderilemedi: {ex.Message}");
-        }
+      try
+{
+    Console.WriteLine($"Email gönderiliyor: {message.Email}");
+    await _emailService.SendConfirmationEmailAsync(message.Email, message.FullName);
+    Console.WriteLine($"Email gönderildi!");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Email gönderilemedi: {ex.Message}");
+    Console.WriteLine($"Detay: {ex.InnerException?.Message}");
+}
 
         return Ok(new { message = "Mesajiniz basariyla iletildi." });
     }
