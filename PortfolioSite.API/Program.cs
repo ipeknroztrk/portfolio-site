@@ -16,6 +16,10 @@ var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
 Env.Load(envPath);
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(8080);
+});
 
 builder.Services.AddControllers();
 
@@ -141,17 +145,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseResponseCaching();
 app.UseAuthorization();
 app.MapControllers();
 
 // Seed
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await DbSeeder.SeedAsync(context);
-}
+//using (var scope = app.Services.CreateScope())
+//{
+  //  var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+  //  await DbSeeder.SeedAsync(context);
+//}
 
 app.Run();
