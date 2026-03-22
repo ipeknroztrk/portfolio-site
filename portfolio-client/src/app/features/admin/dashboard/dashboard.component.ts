@@ -68,11 +68,10 @@ export class DashboardComponent implements OnInit {
     this.editingProjectId = project.id!;
     this.projectForm = { ...project };
   }
-
   deleteProject(id: number): void {
     if (confirm('Projeyi silmek istediğinize emin misiniz?')) {
       this.portfolioService.deleteProject(id).subscribe({
-        next: () => this.projects = this.projects.filter(p => p.id !== id),
+        next: () => this.loadAll(),
         error: (err) => alert('Silme hatası: ' + err.message)
       });
     }

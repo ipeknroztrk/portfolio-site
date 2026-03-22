@@ -5,9 +5,8 @@ using PortfolioSite.Application.Data;
 using PortfolioSite.Application.Entities;
 
 namespace PortfolioSite.API.Controllers;
-
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/projects")]
 public class ProjectsController : ControllerBase
 {
     private readonly AppDbContext _context;
@@ -18,8 +17,8 @@ public class ProjectsController : ControllerBase
     }
 
     // Public — herkes görebilir
-   [HttpGet]
-[ResponseCache(Duration = 300)] // 5 dakika cache
+ [HttpGet]
+[ResponseCache(NoStore = true, Duration = 0)]
 public async Task<IActionResult> GetAll()
 {
     var projects = await _context.Projects
