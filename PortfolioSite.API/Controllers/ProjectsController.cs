@@ -53,36 +53,39 @@ public async Task<IActionResult> GetAllAdmin()
     }
 
     // Admin — proje güncelle
-    [Authorize]
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Project project)
-    {
-        var existing = await _context.Projects.FindAsync(id);
-        if (existing == null) return NotFound();
+   [Authorize]
+[HttpDelete("{id}")]
+public async Task<IActionResult> Delete(int id)
+{
+    var project = await _context.Projects
+        .Where(p => p.Id == id)
+        .FirstOrDefaultAsync();
+    if (project == null) return NotFound();
 
-        existing.Title = project.Title;
-        existing.Description = project.Description;
-        existing.ImageUrl = project.ImageUrl;
-        existing.LiveUrl = project.LiveUrl;
-        existing.GithubUrl = project.GithubUrl;
-        existing.TechStack = project.TechStack;
-        existing.IsVisible = project.IsVisible;
-        existing.OrderIndex = project.OrderIndex;
+    _context.Projects.Remove(project);
+    await _context.SaveChangesAsync();
+    return NoContent();
+}
 
-        await _context.SaveChangesAsync();
-        return Ok(existing);
-    }
+[Authorize]
+[HttpPut("{id}")]
+public async Task<IActionResult> Update(int id, [FromBody] Project project)
+{
+    var existing = await _context.Projects
+        .Where(p => p.Id == id)
+        .FirstOrDefaultAsync();
+    if (existing == null) return NotFound();
 
-    // Admin — proje sil
-    [Authorize]
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var project = await _context.Projects.FindAsync(id);
-        if (project == null) return NotFound();
+    existing.Title = project.Title;
+    existing.Description = project.Description;
+    existing.ImageUrl = project.ImageUrl;
+    existing.LiveUrl = project.LiveUrl;
+    existing.GithubUrl = project.GithubUrl;
+    existing.TechStack = project.TechStack;
+    existing.IsVisible = project.IsVisible;
+    existing.OrderIndex = project.OrderIndex;
 
-        _context.Projects.Remove(project);
-        await _context.SaveChangesAsync();
-        return NoContent();
-    }
+    await _context.SaveChangesAsync();
+    return Ok(existing);
+}
 }

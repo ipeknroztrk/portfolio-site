@@ -12,26 +12,19 @@ import { ContactMessage } from '../../../core/models/contact.model';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule,RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
-  // Aktif sekme
   activeTab: 'projects' | 'experiences' | 'skills' | 'messages' = 'projects';
-
-  // Veriler
   projects: Project[] = [];
   experiences: Experience[] = [];
   skills: Skill[] = [];
   messages: ContactMessage[] = [];
-
-  // Form modelleri
   projectForm: Project = this.emptyProject();
   experienceForm: Experience = this.emptyExperience();
   skillForm: Skill = this.emptySkill();
-
-  // Düzenleme modu
   editingProjectId: number | null = null;
   editingExperienceId: number | null = null;
   editingSkillId: number | null = null;
@@ -42,9 +35,7 @@ export class DashboardComponent implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit(): void {
-    this.loadAll();
-  }
+  ngOnInit(): void { this.loadAll(); }
 
   loadAll(): void {
     this.portfolioService.getProjects().subscribe(d => this.projects = d);
@@ -53,14 +44,23 @@ export class DashboardComponent implements OnInit {
     this.portfolioService.getMessages().subscribe(d => this.messages = d);
   }
 
-  // ── Projeler ──────────────────────────────────────────
   saveProject(): void {
     if (this.editingProjectId) {
       this.portfolioService.updateProject(this.editingProjectId, this.projectForm)
-        .subscribe(() => { this.loadAll(); this.resetProjectForm(); });
+        .subscribe({
+          next: (updated) => {
+            this.projects = this.projects.map(p => p.id === updated.id ? updated : p);
+            this.resetProjectForm();
+          }
+        });
     } else {
       this.portfolioService.createProject(this.projectForm)
-        .subscribe(() => { this.loadAll(); this.resetProjectForm(); });
+        .subscribe({
+          next: (created) => {
+            this.projects = [...this.projects, created];
+            this.resetProjectForm();
+          }
+        });
     }
   }
 
@@ -71,7 +71,10 @@ export class DashboardComponent implements OnInit {
 
   deleteProject(id: number): void {
     if (confirm('Projeyi silmek istediğinize emin misiniz?')) {
-      this.portfolioService.deleteProject(id).subscribe(() => this.loadAll());
+      this.portfolioService.deleteProject(id).subscribe({
+        next: () => this.projects = this.projects.filter(p => p.id !== id),
+        error: (err) => alert('Silme hatası: ' + err.message)
+      });
     }
   }
 
@@ -80,14 +83,23 @@ export class DashboardComponent implements OnInit {
     this.editingProjectId = null;
   }
 
-  // ── Deneyimler ────────────────────────────────────────
   saveExperience(): void {
     if (this.editingExperienceId) {
       this.portfolioService.updateExperience(this.editingExperienceId, this.experienceForm)
-        .subscribe(() => { this.loadAll(); this.resetExperienceForm(); });
+        .subscribe({
+          next: (updated) => {
+            this.experiences = this.experiences.map(e => e.id === updated.id ? updated : e);
+            this.resetExperienceForm();
+          }
+        });
     } else {
       this.portfolioService.createExperience(this.experienceForm)
-        .subscribe(() => { this.loadAll(); this.resetExperienceForm(); });
+        .subscribe({
+          next: (created) => {
+            this.experiences = [...this.experiences, created];
+            this.resetExperienceForm();
+          }
+        });
     }
   }
 
@@ -98,7 +110,10 @@ export class DashboardComponent implements OnInit {
 
   deleteExperience(id: number): void {
     if (confirm('Deneyimi silmek istediğinize emin misiniz?')) {
-      this.portfolioService.deleteExperience(id).subscribe(() => this.loadAll());
+      this.portfolioService.deleteExperience(id).subscribe({
+        next: () => this.experiences = this.experiences.filter(e => e.id !== id),
+        error: (err) => alert('Silme hatası: ' + err.message)
+      });
     }
   }
 
@@ -107,14 +122,23 @@ export class DashboardComponent implements OnInit {
     this.editingExperienceId = null;
   }
 
-  // ── Beceriler ─────────────────────────────────────────
   saveSkill(): void {
     if (this.editingSkillId) {
       this.portfolioService.updateSkill(this.editingSkillId, this.skillForm)
-        .subscribe(() => { this.loadAll(); this.resetSkillForm(); });
+        .subscribe({
+          next: (updated) => {
+            this.skills = this.skills.map(s => s.id === updated.id ? updated : s);
+            this.resetSkillForm();
+          }
+        });
     } else {
       this.portfolioService.createSkill(this.skillForm)
-        .subscribe(() => { this.loadAll(); this.resetSkillForm(); });
+        .subscribe({
+          next: (created) => {
+            this.skills = [...this.skills, created];
+            this.resetSkillForm();
+          }
+        });
     }
   }
 
@@ -125,7 +149,10 @@ export class DashboardComponent implements OnInit {
 
   deleteSkill(id: number): void {
     if (confirm('Beceriyi silmek istediğinize emin misiniz?')) {
-      this.portfolioService.deleteSkill(id).subscribe(() => this.loadAll());
+      this.portfolioService.deleteSkill(id).subscribe({
+        next: () => this.skills = this.skills.filter(s => s.id !== id),
+        error: (err) => alert('Silme hatası: ' + err.message)
+      });
     }
   }
 
@@ -134,24 +161,28 @@ export class DashboardComponent implements OnInit {
     this.editingSkillId = null;
   }
 
-  // ── Mesajlar ──────────────────────────────────────────
   markAsRead(id: number): void {
-    this.portfolioService.markAsRead(id).subscribe(() => this.loadAll());
+    this.portfolioService.markAsRead(id).subscribe({
+      next: (updated) => {
+        this.messages = this.messages.map(m => m.id === updated.id ? updated : m);
+      }
+    });
   }
 
   deleteMessage(id: number): void {
     if (confirm('Mesajı silmek istediğinize emin misiniz?')) {
-      this.portfolioService.deleteMessage(id).subscribe(() => this.loadAll());
+      this.portfolioService.deleteMessage(id).subscribe({
+        next: () => this.messages = this.messages.filter(m => m.id !== id),
+        error: (err) => alert('Silme hatası: ' + err.message)
+      });
     }
   }
 
-  // ── Çıkış ─────────────────────────────────────────────
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/admin/login']);
   }
 
-  // ── Boş form modelleri ────────────────────────────────
   private emptyProject(): Project {
     return { title: '', description: '', techStack: '', isVisible: true, orderIndex: 0 };
   }
