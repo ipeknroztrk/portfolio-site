@@ -30,16 +30,16 @@ public async Task<IActionResult> GetAll()
 }
 
     // Sadece admin görebilir — tüm projeler (görünmeyenler dahil)
-    [Authorize]
-    [HttpGet("all")]
-    public async Task<IActionResult> GetAllAdmin()
-    {
-        var projects = await _context.Projects
-            .OrderBy(p => p.OrderIndex)
-            .ToListAsync();
-
-        return Ok(projects);
-    }
+   [Authorize]
+[HttpGet("all")]
+[ResponseCache(NoStore = true, Duration = 0)]
+public async Task<IActionResult> GetAllAdmin()
+{
+    var projects = await _context.Projects
+        .OrderBy(p => p.OrderIndex)
+        .ToListAsync();
+    return Ok(projects);
+}
 
     // Admin — yeni proje ekle
     [Authorize]

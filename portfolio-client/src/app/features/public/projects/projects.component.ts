@@ -52,7 +52,7 @@ export class ProjectsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.portfolioService.getProjects().subscribe({
+    this.portfolioService.getPublicProjects().subscribe({
       next: (data) => {
         this.projects = data.length > 0 ? data : this.staticProjects;
         this.isLoading = false;

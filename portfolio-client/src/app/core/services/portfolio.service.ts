@@ -15,7 +15,7 @@ export class PortfolioService {
 
   // ── Projeler ──────────────────────────────
   getProjects(): Observable<Project[]> {
-    return this.http.get<Project[]>(`${this.apiUrl}/projects`);
+    return this.http.get<Project[]>(`${this.apiUrl}/projects/all`);
   }
 
   createProject(project: Project): Observable<Project> {
@@ -28,6 +28,9 @@ export class PortfolioService {
 
   deleteProject(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/projects/${id}`);
+  }
+  getPublicProjects(): Observable<Project[]> {
+    return this.http.get<Project[]>(`${this.apiUrl}/projects`);
   }
 
   // ── Deneyimler ────────────────────────────
