@@ -55,6 +55,8 @@ export class GameComponent implements OnInit, OnDestroy {
   slowMode = false;
   hasShield = false;
   nextLifeAt = 100;
+  playerName: string = '';
+leaderboard: any[] = [];
 
   private gameTimer: any;
   private spawnTimer: any;
@@ -68,7 +70,9 @@ export class GameComponent implements OnInit, OnDestroy {
     this.highScore = parseInt(localStorage.getItem('star_hs2') || '0');
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  this.loadLeaderboard();
+}
   ngOnDestroy(): void { this.clearTimers(); }
 
   get gameSize(): number {
@@ -98,6 +102,9 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   start(): void {
+    
+
+    
     this.stars = [];
     this.particles = [];
     this.playerX = 200;
@@ -314,15 +321,23 @@ export class GameComponent implements OnInit, OnDestroy {
     }, delay);
   }
 
-  private endGame(): void {
-    this.clearTimers();
-    this.isPlaying = false;
-    this.isGameOver = true;
-    if (this.score > this.highScore) {
-      this.highScore = this.score;
-      localStorage.setItem('star_hs2', String(this.highScore));
-    }
+ private endGame(): void {
+  this.clearTimers();
+  this.isPlaying = false;
+  this.isGameOver = true;
+
+  if (!this.playerName) {
+    this.playerName = prompt("Adınızı girin") || "Player";
   }
+
+  if (this.score > this.highScore) {
+    this.highScore = this.score;
+    localStorage.setItem('star_hs2', String(this.highScore));
+  }
+
+  this.sendScore();
+  this.loadLeaderboard();
+}
 
   private clearTimers(): void {
     clearInterval(this.gameTimer);
@@ -355,6 +370,24 @@ export class GameComponent implements OnInit, OnDestroy {
     if (star.color === 'bomb') return 'url(#glow-bomb)';
     return 'url(#glow-' + star.color + ')';
   }
+  sendScore() {
+  fetch('https://api.ipekozturk.com/api/leaderboard', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      playerName: this.playerName,
+      points: this.score
+    })
+  });
+}
+
+loadLeaderboard() {
+  fetch('https://api.ipekozturk.com/api/leaderboard')
+    .then(res => res.json())
+    .then(data => this.leaderboard = data);
+}
 
   getStarPath(size: number, isBomb = false): string {
     if (isBomb) {

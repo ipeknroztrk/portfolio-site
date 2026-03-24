@@ -12,6 +12,7 @@
             <span class="stat-lbl">{{ langService.current() === 'tr' ? 'Skor' : 'Score' }}</span>
             <span class="stat-num cyan">{{ score }}</span>
           </div>
+          
           <div class="stat-box">
             <span class="stat-lbl">{{ langService.current() === 'tr' ? 'En Yüksek' : 'Best' }}</span>
             <span class="stat-num silver">{{ highScore }}</span>
@@ -22,6 +23,19 @@
               {{ level }}
             </span>
           </div>
+          <div class="leaderboard-box">
+  <div class="stat-lbl">Leaderboard</div>
+
+  <div class="leaderboard-item" *ngFor="let s of leaderboard; let i = index">
+    <span class="rank">#{{ i + 1 }}</span>
+    <span class="name">{{ s.playerName }}</span>
+    <span class="points">{{ s.points }}</span>
+  </div>
+
+  <div *ngIf="leaderboard.length === 0" class="leaderboard-empty">
+    No scores yet
+  </div>
+</div>
           <div class="lives">
             <span class="stat-lbl">{{ langService.current() === 'tr' ? 'Can' : 'Lives' }}</span>
             <div class="hearts">
