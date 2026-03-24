@@ -13,7 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<ContactMessage> ContactMessages => Set<ContactMessage>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
-
+public DbSet<Score> Scores { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Project>()

@@ -192,7 +192,14 @@
         <div class="message-card" *ngFor="let m of messages" [class.unread]="!m.isRead">
           <div class="msg-header">
             <strong>{{ m.fullName }}</strong>
-          <span>{{ m.id }}</span>
+          
+            <span class="msg-status unread" *ngIf="!m.isRead">
+              Okunmadı
+            </span>
+          
+            <span class="msg-status read" *ngIf="m.isRead">
+              Okundu
+            </span>
           </div>
           <div class="msg-email">{{ m.email }}</div>
           <div class="msg-text">{{ m.message }}</div>
