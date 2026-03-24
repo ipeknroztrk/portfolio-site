@@ -10,8 +10,7 @@ using PortfolioSite.Application.DTOs;
 using PortfolioSite.Application.Interfaces;
 using PortfolioSite.Application.Services;
 
-// .env dosyasını yükle — tüm secret'lar buradan gelir
-// .env dosyasını kesin yoldan yükle
+// .env dosyasını yükle
 var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
 if (File.Exists(envPath))
 {
@@ -42,31 +41,43 @@ builder.Services.Configure<IpRateLimitOptions>(options =>
     {
         new RateLimitRule { Endpoint = "POST:/api/v1/auth/login", Period = "15m", Limit = 5 },
         new RateLimitRule { Endpoint = "POST:/api/v1/contact", Period = "10m", Limit = 3 },
+        new RateLimitRule { Endpoint = "POST:/api/leaderboard", Period = "1m", Limit = 10 }, // Leaderboard için rate limit
+        new RateLimitRule { Endpoint = "GET:/api/leaderboard", Period = "1m", Limit = 30 },  // GET için daha yüksek limit
         new RateLimitRule { Endpoint = "*", Period = "1m", Limit = 60 }
     };
 });
 builder.Services.AddInMemoryRateLimiting();
 builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
-// CORS
+// CORS - Angular için düzenlendi
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
     {
-        var allowedOrigins = new List<string> { "http://localhost:4200" };
+        var allowedOrigins = new List<string> { 
+            "http://localhost:4200",
+            "http://localhost:3000",
+            "https://localhost:4200"
+        };
         
         // Production domain varsa ekle
         var productionDomain = Environment.GetEnvironmentVariable("ALLOWED_ORIGIN");
         if (!string.IsNullOrEmpty(productionDomain))
             allowedOrigins.Add(productionDomain);
+        
+        // Frontend domain'iniz (eğer varsa)
+        var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL");
+        if (!string.IsNullOrEmpty(frontendUrl))
+            allowedOrigins.Add(frontendUrl);
 
         policy.WithOrigins(allowedOrigins.ToArray())
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials(); // Credentials için
     });
 });
 
-// PostgreSQL — .env'den oku, yoksa appsettings'e bak
+// PostgreSQL — .env'den oku
 var dbConnection = Environment.GetEnvironmentVariable("DB_CONNECTION")
     ?? builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new Exception("DB_CONNECTION bulunamadı!");
@@ -81,12 +92,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
                 maxRetryDelay: TimeSpan.FromSeconds(10),
                 errorCodesToAdd: null);
         }));
+
 // JWT Secret — .env'den oku
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
     ?? builder.Configuration["JwtSettings:SecretKey"]
     ?? throw new Exception("JWT_SECRET bulunamadı!");
 
-// JWT Secret'ı config'e yaz (JwtSettings servisi okusun diye)
+// JWT Secret'ı config'e yaz
 builder.Configuration["JwtSettings:SecretKey"] = jwtSecret;
 
 builder.Services.Configure<JwtSettings>(
@@ -116,10 +128,25 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(key),
         ClockSkew = TimeSpan.Zero
     };
+    
+    // Leaderboard için JWT zorunlu olmasın
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            // Leaderboard endpoint'leri için token kontrolünü atla
+            if (context.Request.Path.StartsWithSegments("/api/leaderboard"))
+            {
+                context.NoResult();
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<EmailService>();
+
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -145,14 +172,19 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+// Middleware sıralaması önemli!
 app.UseIpRateLimiting();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseCors("AllowAngular");
-// Swagger sadece development'ta
+
+// Swagger her zaman açık olabilir (production'da kapatmak isterseniz kontrol ekleyin)
 app.UseSwagger();
 app.UseSwaggerUI();
-//app.UseHttpsRedirection();
+
+// HTTPS yönlendirme - production'da açın
+// app.UseHttpsRedirection();
+
 app.UseAuthentication();
 app.UseResponseCaching();
 
@@ -163,22 +195,15 @@ app.Use(async (context, next) =>
     context.Response.Headers["Expires"] = "0";
     await next();
 });
+
 app.UseAuthorization();
 app.MapControllers();
 
-// Seed
+// Seed - tek sefer çalışsın
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await DbSeeder.SeedAsync(context);
-}
-if (app.Environment.IsDevelopment())
-{
-    using (var scope = app.Services.CreateScope())
-    {
-        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        await DbSeeder.SeedAsync(context);
-    }
 }
 
 app.Run();

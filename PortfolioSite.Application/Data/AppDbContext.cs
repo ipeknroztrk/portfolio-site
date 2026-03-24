@@ -16,6 +16,13 @@ public class AppDbContext : DbContext
 public DbSet<Score> Scores { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+         // Score için gerekirse config ekleyin
+        modelBuilder.Entity<Score>()
+            .Property(s => s.PlayerName)
+            .HasMaxLength(100);
+            
+        modelBuilder.Entity<Score>()
+            .HasIndex(s => s.Points); // Sıralama için index
         modelBuilder.Entity<Project>()
             .Property(p => p.Title)
             .HasMaxLength(200);

@@ -389,33 +389,57 @@ export class GameComponent implements OnInit, OnDestroy {
     return 'url(#glow-' + star.color + ')';
   }
 
-  async sendScore() {
-    try {
-      await fetch('https://api.ipekozturk.com/api/leaderboard', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          playerName: this.playerName,
-          points: this.score
-        })
-      });
-    } catch (error) {
-      console.error('Score gönderilemedi:', error);
+ // DÜZELTİLMİŞ sendScore()
+async sendScore() {
+  if (!this.playerName || this.score === 0) return;
+  
+  try {
+    console.log('Gönderilen skor:', { playerName: this.playerName, points: this.score });
+    
+    const response = await fetch('https://api.ipekozturk.com/api/leaderboard', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        playerName: this.playerName,
+        points: this.score
+      })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API Hatası:', response.status, errorText);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+    
+    console.log('Skor başarıyla gönderildi');
+    
+  } catch (error) {
+    console.error('Score gönderilemedi:', error);
   }
-
-  async loadLeaderboard() {
-    try {
-      const response = await fetch('https://api.ipekozturk.com/api/leaderboard');
-      const data = await response.json();
-      this.leaderboard = data.sort((a: any, b: any) => b.points - a.points);
-    } catch (error) {
-      console.error('Leaderboard yüklenemedi:', error);
-      this.leaderboard = [];
+}
+// DÜZELTİLMİŞ loadLeaderboard() - game.component.ts
+async loadLeaderboard() {
+  try {
+    const response = await fetch('https://api.ipekozturk.com/api/leaderboard');
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+    
+    const data = await response.json();
+    
+    // API zaten sıralı geliyor ama garantilemek için tekrar sırala
+    this.leaderboard = data.sort((a: any, b: any) => b.points - a.points);
+    
+    console.log('Leaderboard yüklendi:', this.leaderboard); // Debug için
+    
+  } catch (error) {
+    console.error('Leaderboard yüklenemedi:', error);
+    this.leaderboard = [];
   }
+}
 
   getStarPath(size: number, isBomb = false): string {
     if (isBomb) {
