@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { LanguageService } from '../../../core/services/language.service';
 
 interface Star {
@@ -28,7 +29,7 @@ interface PowerUp {
 @Component({
   selector: 'app-game',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './game.component.html',
   styleUrl: './game.component.scss'
 })
@@ -56,7 +57,9 @@ export class GameComponent implements OnInit, OnDestroy {
   hasShield = false;
   nextLifeAt = 100;
   playerName: string = '';
-leaderboard: any[] = [];
+  leaderboard: any[] = [];
+  showNamePrompt = false;
+  tempPlayerName = '';
 
   private gameTimer: any;
   private spawnTimer: any;
@@ -68,12 +71,19 @@ leaderboard: any[] = [];
 
   constructor(public langService: LanguageService) {
     this.highScore = parseInt(localStorage.getItem('star_hs2') || '0');
+    const savedName = localStorage.getItem('player_name');
+    if (savedName) {
+      this.playerName = savedName;
+    }
   }
 
   ngOnInit(): void {
-  this.loadLeaderboard();
-}
-  ngOnDestroy(): void { this.clearTimers(); }
+    this.loadLeaderboard();
+  }
+  
+  ngOnDestroy(): void { 
+    this.clearTimers(); 
+  }
 
   get gameSize(): number {
     return window.innerWidth < 480 ? 320 :
@@ -81,10 +91,14 @@ leaderboard: any[] = [];
   }
 
   @HostListener('window:keydown', ['$event'])
-  onKeyDown(e: KeyboardEvent): void { this.keys.add(e.key); }
+  onKeyDown(e: KeyboardEvent): void { 
+    this.keys.add(e.key); 
+  }
 
   @HostListener('window:keyup', ['$event'])
-  onKeyUp(e: KeyboardEvent): void { this.keys.delete(e.key); }
+  onKeyUp(e: KeyboardEvent): void { 
+    this.keys.delete(e.key); 
+  }
 
   onTouchStart(event: TouchEvent): void {
     this.lastTouchX = event.touches[0].clientX;
@@ -102,9 +116,23 @@ leaderboard: any[] = [];
   }
 
   start(): void {
-    
+    if (!this.playerName) {
+      this.showNamePrompt = true;
+      return;
+    }
+    this.initGame();
+  }
 
-    
+  savePlayerName(): void {
+    if (this.tempPlayerName.trim()) {
+      this.playerName = this.tempPlayerName.trim();
+      localStorage.setItem('player_name', this.playerName);
+      this.showNamePrompt = false;
+      this.initGame();
+    }
+  }
+
+  private initGame(): void {
     this.stars = [];
     this.particles = [];
     this.playerX = 200;
@@ -140,7 +168,6 @@ leaderboard: any[] = [];
       this.playerX = Math.min(this.WIDTH - 20, this.playerX + speed);
     }
 
-    // Slow mode
     const slowFactor = this.slowMode ? 0.4 : 1;
 
     this.stars = this.stars.map(s => ({
@@ -149,7 +176,6 @@ leaderboard: any[] = [];
       angle: s.angle + 3
     }));
 
-    // Çarpışma
     this.stars.forEach(s => {
       const dx = s.x - this.playerX;
       const dy = s.y - this.playerY;
@@ -157,7 +183,6 @@ leaderboard: any[] = [];
       if (dist < s.size + 18) this.collect(s);
     });
 
-    // Kaçan yıldızlar
     const escaped = this.stars.filter(s => s.y > this.HEIGHT + 20);
     if (escaped.length > 0) {
       const hasBomb = escaped.some(s => s.color === 'bomb');
@@ -175,12 +200,10 @@ leaderboard: any[] = [];
       if (this.lives <= 0) { this.endGame(); return; }
     }
 
-    // Parçacıklar
     this.particles = this.particles
       .map(p => ({ ...p, x: p.x + p.vx, y: p.y + p.vy, life: p.life - 1, vy: p.vy + 0.15, size: p.size * 0.97 }))
       .filter(p => p.life > 0);
 
-    // PowerUp süresi
     if (this.activePowerUp) {
       this.activePowerUp.timeLeft -= 16;
       if (this.activePowerUp.timeLeft <= 0) {
@@ -191,14 +214,12 @@ leaderboard: any[] = [];
       }
     }
 
-    // Can kazanma
     if (this.score >= this.nextLifeAt && this.lives < 5) {
       this.lives++;
       this.nextLifeAt += 150;
       this.showLevelUp('❤️ +1 Can!');
     }
 
-    // Level
     if (this.score >= this.level * 120) {
       this.level++;
       this.showLevelUp('⚡ LEVEL ' + this.level + '!');
@@ -209,7 +230,6 @@ leaderboard: any[] = [];
     this.stars = this.stars.filter(s => s.id !== star.id);
 
     if (star.color === 'bomb') {
-      // Bomba — can kaybı!
       if (!this.hasShield) {
         this.lives = Math.max(0, this.lives - 1);
         this.triggerShake();
@@ -321,30 +341,28 @@ leaderboard: any[] = [];
     }, delay);
   }
 
- private endGame(): void {
-  this.clearTimers();
-  this.isPlaying = false;
-  this.isGameOver = true;
+  private endGame(): void {
+    this.clearTimers();
+    this.isPlaying = false;
+    this.isGameOver = true;
 
-  if (!this.playerName) {
-    this.playerName = prompt("Adınızı girin") || "Player";
+    if (this.score > this.highScore) {
+      this.highScore = this.score;
+      localStorage.setItem('star_hs2', String(this.highScore));
+    }
+
+    this.sendScore();
+    this.loadLeaderboard();
   }
-
-  if (this.score > this.highScore) {
-    this.highScore = this.score;
-    localStorage.setItem('star_hs2', String(this.highScore));
-  }
-
-  this.sendScore();
-  this.loadLeaderboard();
-}
 
   private clearTimers(): void {
     clearInterval(this.gameTimer);
     clearTimeout(this.spawnTimer);
   }
 
-  getLives(): number[] { return Array(Math.max(0, this.lives)).fill(0); }
+  getLives(): number[] { 
+    return Array(Math.max(0, this.lives)).fill(0); 
+  }
 
   getPowerUpColor(): string {
     if (!this.activePowerUp) return '';
@@ -370,28 +388,37 @@ leaderboard: any[] = [];
     if (star.color === 'bomb') return 'url(#glow-bomb)';
     return 'url(#glow-' + star.color + ')';
   }
-  sendScore() {
-  fetch('https://api.ipekozturk.com/api/leaderboard', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      playerName: this.playerName,
-      points: this.score
-    })
-  });
-}
 
-loadLeaderboard() {
-  fetch('https://api.ipekozturk.com/api/leaderboard')
-    .then(res => res.json())
-    .then(data => this.leaderboard = data);
-}
+  async sendScore() {
+    try {
+      await fetch('https://api.ipekozturk.com/api/leaderboard', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          playerName: this.playerName,
+          points: this.score
+        })
+      });
+    } catch (error) {
+      console.error('Score gönderilemedi:', error);
+    }
+  }
+
+  async loadLeaderboard() {
+    try {
+      const response = await fetch('https://api.ipekozturk.com/api/leaderboard');
+      const data = await response.json();
+      this.leaderboard = data.sort((a: any, b: any) => b.points - a.points);
+    } catch (error) {
+      console.error('Leaderboard yüklenemedi:', error);
+      this.leaderboard = [];
+    }
+  }
 
   getStarPath(size: number, isBomb = false): string {
     if (isBomb) {
-      // Bomba — sekizgen
       let path = '';
       for (let i = 0; i < 8; i++) {
         const a = (i * Math.PI * 2) / 8 - Math.PI / 8;
