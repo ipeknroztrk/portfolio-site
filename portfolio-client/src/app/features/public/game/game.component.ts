@@ -342,18 +342,20 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   private endGame(): void {
-    this.clearTimers();
-    this.isPlaying = false;
-    this.isGameOver = true;
+  this.clearTimers();
+  this.isPlaying = false;
+  this.isGameOver = true;
 
-    if (this.score > this.highScore) {
-      this.highScore = this.score;
-      localStorage.setItem('star_hs2', String(this.highScore));
-    }
-
-    this.sendScore();
-    this.loadLeaderboard();
+  // Yüksek skoru localStorage'a kaydet
+  if (this.score > this.highScore) {
+    this.highScore = this.score;
+    localStorage.setItem('star_hs2', String(this.highScore));
   }
+
+  // Skoru API'ye gönder (güncelleme veya ekleme)
+  this.sendScore();
+  this.loadLeaderboard();
+}
 
   private clearTimers(): void {
     clearInterval(this.gameTimer);
@@ -389,7 +391,6 @@ export class GameComponent implements OnInit, OnDestroy {
     return 'url(#glow-' + star.color + ')';
   }
 
- // DÜZELTİLMİŞ sendScore()
 async sendScore() {
   if (!this.playerName || this.score === 0) return;
   
@@ -413,7 +414,8 @@ async sendScore() {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
-    console.log('Skor başarıyla gönderildi');
+    const result = await response.json();
+    console.log('Skor kaydedildi:', result);
     
   } catch (error) {
     console.error('Score gönderilemedi:', error);
@@ -422,7 +424,7 @@ async sendScore() {
 // DÜZELTİLMİŞ loadLeaderboard() - game.component.ts
 async loadLeaderboard() {
   try {
-    const response = await fetch('https://api.ipekozturk.com/api/leaderboard');
+    const response = await fetch('https://api.ipekozturk.com/api/leaderboard?limit=10');
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -430,10 +432,10 @@ async loadLeaderboard() {
     
     const data = await response.json();
     
-    // API zaten sıralı geliyor ama garantilemek için tekrar sırala
-    this.leaderboard = data.sort((a: any, b: any) => b.points - a.points);
+    // API zaten sıralı geliyor
+    this.leaderboard = data;
     
-    console.log('Leaderboard yüklendi:', this.leaderboard); // Debug için
+    console.log('Leaderboard yüklendi:', this.leaderboard);
     
   } catch (error) {
     console.error('Leaderboard yüklenemedi:', error);
@@ -441,6 +443,23 @@ async loadLeaderboard() {
   }
 }
 
+// Mevcut kullanıcının sıralamasını bul
+getCurrentPlayerRank(): number | null {
+  const index = this.leaderboard.findIndex(s => s.playerName === this.playerName);
+  return index !== -1 ? index + 1 : null;
+}
+
+// İsim değiştir
+changePlayerName(): void {
+  this.showNamePrompt = true;
+  this.tempPlayerName = '';
+  this.isPlaying = false;
+}
+
+// Oyunu sıfırla ama ismi koru
+resetGame(): void {
+  this.initGame();
+}
   getStarPath(size: number, isBomb = false): string {
     if (isBomb) {
       let path = '';

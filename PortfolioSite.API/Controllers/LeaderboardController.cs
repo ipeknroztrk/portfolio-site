@@ -19,7 +19,7 @@ public class LeaderboardController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddScore([FromBody] Score score)
+    public async Task<IActionResult> AddOrUpdateScore([FromBody] Score score)
     {
         try
         {
@@ -30,16 +30,39 @@ public class LeaderboardController : ControllerBase
             if (score.Points < 0)
                 return BadRequest(new { error = "Points cannot be negative" });
             
-            // İsim uzunluğu sınırı
-            score.PlayerName = score.PlayerName.Trim().Substring(0, Math.Min(50, score.PlayerName.Length));
-            score.CreatedAt = DateTime.UtcNow;
+            // İsim düzenleme
+            score.PlayerName = score.PlayerName.Trim();
             
-            _context.Scores.Add(score);
-            await _context.SaveChangesAsync();
+            // Mevcut skoru kontrol et
+            var existingScore = await _context.Scores
+                .FirstOrDefaultAsync(s => s.PlayerName == score.PlayerName);
             
-            _logger.LogInformation($"New score added: {score.PlayerName} - {score.Points}");
-            
-            return Ok(new { success = true, message = "Score saved successfully" });
+            if (existingScore != null)
+            {
+                // Eğer yeni skor daha yüksekse güncelle
+                if (score.Points > existingScore.Points)
+                {
+                    existingScore.Points = score.Points;
+                    existingScore.CreatedAt = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation($"Score updated: {score.PlayerName} - {score.Points}");
+                    return Ok(new { success = true, message = "Score updated successfully", isNew = false });
+                }
+                else
+                {
+                    // Skor daha düşükse güncelleme yapma
+                    return Ok(new { success = true, message = "Score not high enough to update", isNew = false });
+                }
+            }
+            else
+            {
+                // Yeni kullanıcı, skoru ekle
+                score.CreatedAt = DateTime.UtcNow;
+                _context.Scores.Add(score);
+                await _context.SaveChangesAsync();
+                _logger.LogInformation($"New score added: {score.PlayerName} - {score.Points}");
+                return Ok(new { success = true, message = "Score saved successfully", isNew = true });
+            }
         }
         catch (Exception ex)
         {
@@ -55,8 +78,8 @@ public class LeaderboardController : ControllerBase
         {
             var scores = await _context.Scores
                 .OrderByDescending(s => s.Points)
-                .ThenBy(s => s.CreatedAt) // Aynı puanda eski kayıt önce gelsin
-                .Take(Math.Min(limit, 50)) // Maksimum 50 kayıt
+                .ThenBy(s => s.CreatedAt)
+                .Take(Math.Min(limit, 50))
                 .Select(s => new
                 {
                     s.Id,
@@ -73,16 +96,5 @@ public class LeaderboardController : ControllerBase
             _logger.LogError(ex, "Error getting leaderboard");
             return StatusCode(500, new { error = "Failed to get leaderboard" });
         }
-    }
-    
-    // Admin için - tüm skorları getir (isteğe bağlı)
-    [HttpGet("all")]
-    public async Task<IActionResult> GetAllScores()
-    {
-        var scores = await _context.Scores
-            .OrderByDescending(s => s.Points)
-            .ToListAsync();
-            
-        return Ok(scores);
     }
 }
