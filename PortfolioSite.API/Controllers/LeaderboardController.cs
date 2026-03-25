@@ -33,9 +33,9 @@ public class LeaderboardController : ControllerBase
             // İsim düzenleme
             score.PlayerName = score.PlayerName.Trim();
             
-            // Mevcut skoru kontrol et
+            // Mevcut skoru kontrol et (case-insensitive)
             var existingScore = await _context.Scores
-                .FirstOrDefaultAsync(s => s.PlayerName == score.PlayerName);
+                .FirstOrDefaultAsync(s => s.PlayerName.ToLower() == score.PlayerName.ToLower());
             
             if (existingScore != null)
             {
@@ -96,5 +96,38 @@ public class LeaderboardController : ControllerBase
             _logger.LogError(ex, "Error getting leaderboard");
             return StatusCode(500, new { error = "Failed to get leaderboard" });
         }
+    }
+    
+    // Admin için - tüm skorları getir
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllScores()
+    {
+        var scores = await _context.Scores
+            .OrderByDescending(s => s.Points)
+            .ToListAsync();
+            
+        return Ok(scores);
+    }
+    
+    // Mevcut kullanıcının tüm kayıtlarını temizle (opsiyonel)
+    [HttpDelete("clean/{playerName}")]
+    public async Task<IActionResult> CleanDuplicateScores(string playerName)
+    {
+        var scores = await _context.Scores
+            .Where(s => s.PlayerName.ToLower() == playerName.ToLower())
+            .OrderByDescending(s => s.Points)
+            .ToListAsync();
+            
+        if (scores.Count <= 1)
+            return Ok(new { message = "No duplicates found" });
+            
+        // En yüksek skoru tut, diğerlerini sil
+        var bestScore = scores.First();
+        var duplicates = scores.Skip(1);
+        
+        _context.Scores.RemoveRange(duplicates);
+        await _context.SaveChangesAsync();
+        
+        return Ok(new { message = $"Cleaned {duplicates.Count()} duplicate scores", kept = bestScore.Points });
     }
 }
