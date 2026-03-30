@@ -1,11 +1,17 @@
-[ApiController]
-[Route("api")]
-public class PingController : ControllerBase
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+
+namespace PortfolioSite.API.Controllers
 {
-    [HttpGet("ping")]
-    [AllowAnonymous]
-    public IActionResult Ping()
+    [ApiController]
+    [Route("api")]
+    public class PingController : ControllerBase
     {
-        return Ok("API ayakta");
+        [HttpGet("ping")]
+        [AllowAnonymous]
+        public IActionResult Ping()
+        {
+            return Ok("API ayakta");
+        }
     }
 }
