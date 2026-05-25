@@ -4,6 +4,11 @@
     <h2 class="section-title">
       while(bored) &#123; play(); &#125;
     </h2>
+    <p class="game-subtitle">
+      {{ langService.current() === 'tr'
+        ? '⭐ Yıldız topla · 💣 Bombadan kaç · 🏆 Sıraya gir'
+        : '⭐ Catch stars · 💣 Dodge bombs · 🏆 Top the board' }}
+    </p>
     <div class="section-line"></div>
 
     <div class="game-wrapper">
@@ -124,6 +129,16 @@
                   font-size="10" fill="white">✦</text>
           </g>
 
+          <ng-container *ngIf="isPlaying">
+            <circle *ngFor="let pos of trailPositions; let i = index"
+                    [attr.cx]="pos.x"
+                    [attr.cy]="pos.y"
+                    r="5"
+                    fill="#e879f9"
+                    [attr.opacity]="(i + 1) / trailPositions.length * 0.22">
+            </circle>
+          </ng-container>
+
           <g [attr.transform]="'translate(' + playerX + ',' + playerY + ')'">
             <circle *ngIf="hasShield" cx="0" cy="-4" r="24"
                     fill="none" stroke="#60a5fa" stroke-width="2"
@@ -139,59 +154,63 @@
           </g>
 
           <g *ngIf="!isPlaying && !isGameOver">
-            <rect width="100%" height="100%" fill="rgba(8,11,20,0.9)"/>
-            <text x="200" y="100" text-anchor="middle" font-size="36">🌟</text>
-            <text x="200" y="145" text-anchor="middle" fill="white" font-size="20" font-weight="bold"
-                  font-family="Inter, sans-serif">
+            <rect width="100%" height="100%" fill="rgba(8,11,20,0.92)"/>
+            <!-- Pulsing ring behind emoji -->
+            <circle cx="200" cy="90" r="38" fill="none" stroke="rgba(6,182,212,0.15)" stroke-width="1">
+              <animate attributeName="r" values="32;44;32" dur="2.5s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.5;0.1;0.5" dur="2.5s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="200" cy="90" r="26" fill="rgba(6,182,212,0.08)"/>
+            <text x="200" y="102" text-anchor="middle" font-size="40">🌟</text>
+            <text x="200" y="150" text-anchor="middle" fill="white" font-size="22" font-weight="bold"
+                  font-family="Inter, sans-serif" letter-spacing="1">
               {{ langService.current() === 'tr' ? 'Yıldız Avcısı' : 'Star Catcher' }}
             </text>
-            <text x="200" y="172" text-anchor="middle" fill="rgba(226,232,240,0.5)" font-size="11"
+            <text x="200" y="173" text-anchor="middle" fill="rgba(6,182,212,0.6)" font-size="10"
                   font-family="Fira Code, monospace">
-              // {{ langService.current() === 'tr' ? 'yıldız topla, bombadan kaç' : 'catch stars, dodge bombs' }}
+              {{ langService.current() === 'tr' ? '// yıldız topla · bombadan kaç' : '// catch stars · dodge bombs' }}
             </text>
-            <circle cx="90" cy="225" r="7" fill="#06b6d4" filter="url(#glow-cyan)"/>
-            <text x="104" y="229" fill="rgba(226,232,240,0.7)" font-size="11" font-family="Fira Code, monospace">
-              {{ langService.current() === 'tr' ? '= 10 puan' : '= 10 pts' }}
-            </text>
-            <circle cx="90" cy="248" r="7" fill="#c0c0c0" filter="url(#glow-silver)"/>
-            <text x="104" y="252" fill="rgba(226,232,240,0.7)" font-size="11" font-family="Fira Code, monospace">
-              {{ langService.current() === 'tr' ? '= 20 puan' : '= 20 pts' }}
-            </text>
-            <circle cx="90" cy="271" r="7" fill="#fbbf24" filter="url(#glow-gold)"/>
-            <text x="104" y="275" fill="rgba(226,232,240,0.7)" font-size="11" font-family="Fira Code, monospace">
-              {{ langService.current() === 'tr' ? '= 30 puan' : '= 30 pts' }}
-            </text>
-            <circle cx="90" cy="294" r="7" fill="#a78bfa" filter="url(#glow-powerup)"/>
-            <text x="104" y="298" fill="rgba(226,232,240,0.7)" font-size="11" font-family="Fira Code, monospace">
-              {{ langService.current() === 'tr' ? '= Güç artışı!' : '= Power up!' }}
-            </text>
-            <circle cx="90" cy="317" r="7" fill="#f87171" filter="url(#glow-bomb)"/>
-            <text x="104" y="321" fill="rgba(226,232,240,0.7)" font-size="11" font-family="Fira Code, monospace">
-              {{ langService.current() === 'tr' ? '= BOMBA! Kaç!' : '= BOMB! Dodge!' }}
-            </text>
-            <text x="200" y="360" text-anchor="middle" fill="rgba(6,182,212,0.5)" font-size="11"
+            <!-- Legend -->
+            <rect x="70" y="195" width="260" height="115" rx="8" fill="rgba(6,182,212,0.04)" stroke="rgba(6,182,212,0.1)" stroke-width="1"/>
+            <circle cx="95" cy="218" r="7" fill="#06b6d4" filter="url(#glow-cyan)"/>
+            <text x="110" y="222" fill="rgba(226,232,240,0.75)" font-size="11" font-family="Fira Code, monospace">{{ langService.current() === 'tr' ? '= 10 puan' : '= 10 pts' }}</text>
+            <circle cx="95" cy="238" r="7" fill="#c0c0c0" filter="url(#glow-silver)"/>
+            <text x="110" y="242" fill="rgba(226,232,240,0.75)" font-size="11" font-family="Fira Code, monospace">{{ langService.current() === 'tr' ? '= 20 puan' : '= 20 pts' }}</text>
+            <circle cx="95" cy="258" r="7" fill="#fbbf24" filter="url(#glow-gold)"/>
+            <text x="110" y="262" fill="rgba(226,232,240,0.75)" font-size="11" font-family="Fira Code, monospace">{{ langService.current() === 'tr' ? '= 30 puan' : '= 30 pts' }}</text>
+            <circle cx="215" cy="218" r="7" fill="#a78bfa" filter="url(#glow-powerup)"/>
+            <text x="230" y="222" fill="rgba(226,232,240,0.75)" font-size="11" font-family="Fira Code, monospace">{{ langService.current() === 'tr' ? '= Güç!' : '= Power!' }}</text>
+            <circle cx="215" cy="238" r="7" fill="#f87171" filter="url(#glow-bomb)"/>
+            <text x="230" y="242" fill="rgba(226,232,240,0.75)" font-size="11" font-family="Fira Code, monospace">{{ langService.current() === 'tr' ? '= BOMBA!' : '= BOMB!' }}</text>
+            <text x="200" y="298" text-anchor="middle" fill="rgba(6,182,212,0.45)" font-size="11"
                   font-family="Fira Code, monospace">
               {{ langService.current() === 'tr' ? '← → veya sürükle' : '← → or swipe' }}
             </text>
+            <!-- Arrow hint animation -->
+            <text x="200" y="360" text-anchor="middle" fill="rgba(6,182,212,0.3)" font-size="18">↓</text>
           </g>
 
           <g *ngIf="isGameOver">
-            <rect width="100%" height="100%" fill="rgba(8,11,20,0.92)"/>
-            <text x="200" y="140" text-anchor="middle" fill="#f87171" font-size="22" font-weight="bold">
-              {{ langService.current() === 'tr' ? '💀 Oyun Bitti!' : '💀 Game Over!' }}
+            <rect width="100%" height="100%" fill="rgba(8,11,20,0.93)"/>
+            <circle cx="200" cy="130" r="50" fill="rgba(248,113,113,0.06)" stroke="rgba(248,113,113,0.2)" stroke-width="1"/>
+            <text x="200" y="120" text-anchor="middle" font-size="32">💀</text>
+            <text x="200" y="148" text-anchor="middle" fill="#f87171" font-size="18" font-weight="bold" font-family="Inter, sans-serif">
+              {{ langService.current() === 'tr' ? 'Oyun Bitti!' : 'Game Over!' }}
             </text>
-            <text x="200" y="175" text-anchor="middle" fill="#fbbf24" font-size="28" font-weight="900">
+            <text x="200" y="192" text-anchor="middle" fill="#fbbf24" font-size="38" font-weight="900">
               {{ score }}
             </text>
-            <text x="200" y="198" text-anchor="middle" fill="rgba(226,232,240,0.5)" font-size="12">
+            <text x="200" y="212" text-anchor="middle" fill="rgba(226,232,240,0.45)" font-size="11" font-family="Fira Code, monospace">
               {{ langService.current() === 'tr' ? 'puan' : 'points' }}
             </text>
-            <text x="200" y="230" text-anchor="middle" fill="#c0c0c0" font-size="13">
-              {{ langService.current() === 'tr' ? '🏆 En yüksek: ' : '🏆 Best: ' }}{{ highScore }}
+            <text x="200" y="238" text-anchor="middle" fill="#c0c0c0" font-size="12">
+              🏆 {{ langService.current() === 'tr' ? 'En yüksek:' : 'Best:' }} {{ highScore }}
             </text>
-            <text x="200" y="258" text-anchor="middle" fill="rgba(6,182,212,0.6)" font-size="11"
-                  font-family="Fira Code, monospace">
+            <text x="200" y="260" text-anchor="middle" fill="rgba(6,182,212,0.6)" font-size="11" font-family="Fira Code, monospace">
               {{ langService.current() === 'tr' ? 'Seviye ' + level + "'e ulaştın!" : 'Reached level ' + level + '!' }}
+            </text>
+            <text *ngIf="getCurrentPlayerRank()" x="200" y="288" text-anchor="middle" fill="#a78bfa" font-size="13" font-weight="bold">
+              {{ getRankLabel(getCurrentPlayerRank()!) }} {{ langService.current() === 'tr' ? 'sıradasın!' : 'on the board!' }}
             </text>
           </g>
         </svg>
@@ -201,7 +220,7 @@
         </div>
 
         <div class="game-btn-wrapper">
-          <button class="play-btn" (click)="start()">
+          <button class="play-btn" [class.pulse-glow]="!isPlaying" (click)="start()">
             {{ isGameOver
               ? (langService.current() === 'tr' ? '🔄 Tekrar Oyna' : '🔄 Play Again')
               : (langService.current() === 'tr' ? '🚀 Oyna' : '🚀 Play') }}
@@ -227,10 +246,14 @@
           </div>
           
           <div class="leaderboard-list">
-            <div class="leaderboard-item" *ngFor="let s of leaderboard; let i = index">
-              <span class="rank">#{{ i + 1 }}</span>
+            <div class="leaderboard-item"
+                 *ngFor="let s of leaderboard; let i = index"
+                 [class.rank-gold]="i === 0"
+                 [class.rank-silver]="i === 1"
+                 [class.rank-bronze]="i === 2">
+              <span class="rank">{{ getRankLabel(i + 1) }}</span>
               <span class="name" [class.current-player]="s.playerName === playerName">
-                {{ s.playerName }} {{ s.playerName === playerName ? '(Sen)' : '' }}
+                {{ s.playerName }}{{ s.playerName === playerName ? ' 👤' : '' }}
               </span>
               <span class="points">{{ s.points }}</span>
             </div>

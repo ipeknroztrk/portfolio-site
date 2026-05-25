@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { retry } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Project } from '../models/project.model';
 import { Experience } from '../models/experience.model';
@@ -82,5 +83,12 @@ export class PortfolioService {
 
   deleteMessage(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/contact/${id}`);
+  }
+
+  wakeUpApi(): void {
+    const pingUrl = this.apiUrl.replace('/api/v1', '/api/ping');
+    this.http.get(pingUrl).pipe(
+      retry({ count: 6, delay: 8000 })
+    ).subscribe({ error: () => {} });
   }
 }

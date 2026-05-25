@@ -132,11 +132,21 @@ section {
   gap: 1rem;
 }
 
+.game-subtitle {
+  text-align: center;
+  color: var(--text-dim);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  margin: -0.5rem 0 1.5rem;
+  opacity: 0.75;
+}
+
 .game-svg {
-  border: 1px solid rgba(6, 182, 212, 0.2);
+  border: 1px solid rgba(6, 182, 212, 0.3);
   border-radius: 12px;
   background: rgba(6, 182, 212, 0.02);
-  box-shadow: 0 0 40px rgba(6, 182, 212, 0.08);
+  box-shadow: 0 0 60px rgba(6, 182, 212, 0.12), 0 0 20px rgba(6, 182, 212, 0.06) inset;
   display: block;
   touch-action: none;
 
@@ -303,6 +313,15 @@ section {
     background: #fff;
     box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
   }
+
+  &.pulse-glow {
+    animation: btnPulse 2s ease-in-out infinite;
+  }
+}
+
+@keyframes btnPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(6, 182, 212, 0.4); }
+  50% { box-shadow: 0 0 28px rgba(6, 182, 212, 0.85), 0 0 60px rgba(6, 182, 212, 0.25); }
 }
 
 .mobile-controls {
@@ -495,27 +514,45 @@ section {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.6rem 0;
+    padding: 0.6rem 0.4rem;
     border-bottom: 1px solid rgba(6, 182, 212, 0.1);
     font-size: 0.85rem;
-    
+    border-radius: 6px;
+    transition: background 0.2s;
+
+    &.rank-gold {
+      background: rgba(251, 191, 36, 0.08);
+      border-bottom-color: rgba(251, 191, 36, 0.2);
+    }
+    &.rank-silver {
+      background: rgba(192, 192, 192, 0.06);
+      border-bottom-color: rgba(192, 192, 192, 0.15);
+    }
+    &.rank-bronze {
+      background: rgba(205, 127, 50, 0.06);
+      border-bottom-color: rgba(205, 127, 50, 0.15);
+    }
+
     .rank {
-      color: var(--cyan);
       font-weight: bold;
       width: 35px;
+      font-size: 1rem;
     }
-    
+
     .name {
       flex: 1;
       color: var(--text);
       padding: 0 0.5rem;
-      
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
       &.current-player {
         color: var(--cyan);
         font-weight: bold;
       }
     }
-    
+
     .points {
       color: #fbbf24;
       font-weight: bold;

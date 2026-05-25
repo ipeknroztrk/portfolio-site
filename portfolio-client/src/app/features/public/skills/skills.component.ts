@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { retry } from 'rxjs';
 import { PortfolioService } from '../../../core/services/portfolio.service';
 import { Skill } from '../../../core/models/skill.model';
 import { LanguageService } from '../../../core/services/language.service';
@@ -39,7 +40,9 @@ export class SkillsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.portfolioService.getSkills().subscribe({
+    this.portfolioService.getSkills().pipe(
+      retry({ count: 4, delay: 3500 })
+    ).subscribe({
       next: (data) => {
         const source = data.length > 0 ? data : this.staticSkills;
         this.skills = source;

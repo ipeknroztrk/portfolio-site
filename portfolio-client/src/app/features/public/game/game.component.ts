@@ -39,6 +39,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
   stars: Star[] = [];
   particles: Particle[] = [];
+  trailPositions: {x: number, y: number}[] = [];
   playerX = 200;
   playerY = 350;
   score = 0;
@@ -135,6 +136,7 @@ export class GameComponent implements OnInit, OnDestroy {
   private initGame(): void {
     this.stars = [];
     this.particles = [];
+    this.trailPositions = [];
     this.playerX = 200;
     this.playerY = 350;
     this.score = 0;
@@ -167,6 +169,9 @@ export class GameComponent implements OnInit, OnDestroy {
     if (this.keys.has('ArrowRight') || this.keys.has('d')) {
       this.playerX = Math.min(this.WIDTH - 20, this.playerX + speed);
     }
+
+    this.trailPositions.push({x: this.playerX, y: this.playerY});
+    if (this.trailPositions.length > 8) this.trailPositions.shift();
 
     const slowFactor = this.slowMode ? 0.4 : 1;
 
@@ -460,6 +465,13 @@ changePlayerName(): void {
 resetGame(): void {
   this.initGame();
 }
+  getRankLabel(rank: number): string {
+    if (rank === 1) return '🥇';
+    if (rank === 2) return '🥈';
+    if (rank === 3) return '🥉';
+    return '#' + rank;
+  }
+
   getStarPath(size: number, isBomb = false): string {
     if (isBomb) {
       let path = '';

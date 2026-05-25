@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { retry } from 'rxjs';
 import { PortfolioService } from '../../../core/services/portfolio.service';
 import { Experience } from '../../../core/models/experience.model';
 import { LanguageService } from '../../../core/services/language.service';
@@ -30,9 +31,11 @@ export class ExperienceComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.portfolioService.getExperiences().subscribe({
+    this.portfolioService.getExperiences().pipe(
+      retry({ count: 4, delay: 3500 })
+    ).subscribe({
       next: (data) => { this.experiences = data; this.isLoading = false; },
-      error: () => this.isLoading = false
+      error: () => { this.isLoading = false; }
     });
   }
 

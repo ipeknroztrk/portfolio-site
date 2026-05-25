@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { retry } from 'rxjs';
 import { PortfolioService } from '../../../core/services/portfolio.service';
 import { Project } from '../../../core/models/project.model';
 import { LanguageService } from '../../../core/services/language.service';
@@ -52,7 +53,9 @@ export class ProjectsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.portfolioService.getPublicProjects().subscribe({
+    this.portfolioService.getPublicProjects().pipe(
+      retry({ count: 4, delay: 3500 })
+    ).subscribe({
       next: (data) => {
         this.projects = data.length > 0 ? data : this.staticProjects;
         this.isLoading = false;
