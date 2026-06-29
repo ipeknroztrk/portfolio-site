@@ -44,6 +44,37 @@ section {
   }
 }
 
+.player-box {
+  cursor: pointer;
+  border-color: rgba(6, 182, 212, 0.3) !important;
+  position: relative;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    border-color: var(--cyan) !important;
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.15);
+  }
+
+  .change-hint {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 0.7rem;
+    opacity: 0.5;
+  }
+}
+
+.player-name {
+  font-size: 1rem !important;
+  color: var(--cyan) !important;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 110px;
+  display: block;
+}
+
 .stat-box {
   background: var(--card);
   border: 1px solid var(--border);

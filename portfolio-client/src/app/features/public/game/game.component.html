@@ -14,6 +14,12 @@
     <div class="game-wrapper">
       <!-- SOL TARAF - Oyun İstatistikleri -->
       <div class="game-sidebar-left">
+        <div class="stat-box player-box" (click)="changePlayerName()">
+          <span class="stat-lbl">{{ langService.current() === 'tr' ? 'Oyuncu' : 'Player' }}</span>
+          <span class="stat-num player-name">{{ playerName || '—' }}</span>
+          <span class="change-hint">✏️</span>
+        </div>
+
         <div class="stat-box">
           <span class="stat-lbl">{{ langService.current() === 'tr' ? 'Skor' : 'Score' }}</span>
           <span class="stat-num cyan">{{ score }}</span>
@@ -224,9 +230,6 @@
             {{ isGameOver
               ? (langService.current() === 'tr' ? '🔄 Tekrar Oyna' : '🔄 Play Again')
               : (langService.current() === 'tr' ? '🚀 Oyna' : '🚀 Play') }}
-          </button>
-          <button *ngIf="playerName" class="change-name-btn" (click)="changePlayerName()">
-            ✏️ {{ langService.current() === 'tr' ? 'İsim Değiştir' : 'Change Name' }}
           </button>
         </div>
 
