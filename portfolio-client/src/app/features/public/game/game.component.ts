@@ -59,6 +59,8 @@ export class GameComponent implements OnInit, OnDestroy {
   nextLifeAt = 100;
   playerName: string = '';
   leaderboard: any[] = [];
+  leaderboardLoading = true;
+  leaderboardError = false;
   showNamePrompt = false;
   tempPlayerName = '';
 
@@ -69,6 +71,8 @@ export class GameComponent implements OnInit, OnDestroy {
   private keys = new Set<string>();
   private lastTouchX = 0;
   private frameCount = 0;
+  private leaderboardRequestId = 0;
+  private gameSession: Promise<string | null> = Promise.resolve(null);
 
   constructor(public langService: LanguageService) {
     this.highScore = parseInt(localStorage.getItem('star_hs2') || '0');
@@ -155,8 +159,21 @@ export class GameComponent implements OnInit, OnDestroy {
     this.isPlaying = true;
     this.frameCount = 0;
     this.clearTimers();
+    this.gameSession = this.startGameSession();
     this.spawnStar();
     this.gameTimer = setInterval(() => this.tick(), 16);
+  }
+
+  // Sunucudan tek kullanımlık oyun oturumu al; skor bu oturumla gönderilir
+  private async startGameSession(): Promise<string | null> {
+    try {
+      const response = await fetch('https://api.ipekozturk.com/api/leaderboard/session', { method: 'POST' });
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data.sessionId ?? null;
+    } catch {
+      return null;
+    }
   }
 
   private tick(): void {
@@ -357,9 +374,8 @@ export class GameComponent implements OnInit, OnDestroy {
     localStorage.setItem('star_hs2', String(this.highScore));
   }
 
-  // Skoru API'ye gönder (güncelleme veya ekleme)
-  this.sendScore();
-  this.loadLeaderboard();
+  // Skoru API'ye gönder (güncelleme veya ekleme), sonra listeyi yenile
+  this.sendScore().then(() => this.loadLeaderboard());
 }
 
   private clearTimers(): void {
@@ -398,9 +414,18 @@ export class GameComponent implements OnInit, OnDestroy {
 
 async sendScore() {
   if (!this.playerName || this.score === 0) return;
+
+  const playerName = this.playerName;
+  const points = this.score;
   
   try {
-    console.log('Gönderilen skor:', { playerName: this.playerName, points: this.score });
+    const sessionId = await this.gameSession;
+    // Oturum alınamadıysa skor gönderilmez (oturumsuz eski istek biçimine asla geri dönülmez)
+    if (!sessionId) {
+      console.warn('Oyun oturumu alınamadı, skor gönderilmedi.');
+      return;
+    }
+    console.log('Gönderilen skor:', { playerName, points });
     
     const response = await fetch('https://api.ipekozturk.com/api/leaderboard', {
       method: 'POST',
@@ -408,8 +433,9 @@ async sendScore() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        playerName: this.playerName,
-        points: this.score
+        sessionId,
+        playerName,
+        points
       })
     });
     
@@ -426,25 +452,47 @@ async sendScore() {
     console.error('Score gönderilemedi:', error);
   }
 }
-// DÜZELTİLMİŞ loadLeaderboard() - game.component.ts
+// Soğuk başlangıçtaki API'yi (Render vb.) beklemek için sınırlı sayıda,
+// artan aralıklarla tekrar deneyen leaderboard yükleyici.
 async loadLeaderboard() {
-  try {
-    const response = await fetch('https://api.ipekozturk.com/api/leaderboard?limit=10');
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+  const requestId = ++this.leaderboardRequestId;
+  this.leaderboardLoading = true;
+  this.leaderboardError = false;
+
+  const maxAttempts = 6;
+  const baseDelayMs = 3000;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const response = await fetch('https://api.ipekozturk.com/api/leaderboard?limit=10');
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (requestId !== this.leaderboardRequestId) return; // bu arada daha yeni bir istek başlamış
+
+      // API zaten sıralı geliyor
+      this.leaderboard = data;
+      this.leaderboardLoading = false;
+      this.leaderboardError = false;
+      return;
+
+    } catch (error) {
+      console.error(`Leaderboard yüklenemedi (deneme ${attempt}/${maxAttempts}):`, error);
+
+      if (requestId !== this.leaderboardRequestId) return;
+
+      if (attempt === maxAttempts) {
+        this.leaderboardLoading = false;
+        this.leaderboardError = true;
+        return;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, baseDelayMs * attempt));
     }
-    
-    const data = await response.json();
-    
-    // API zaten sıralı geliyor
-    this.leaderboard = data;
-    
-    console.log('Leaderboard yüklendi:', this.leaderboard);
-    
-  } catch (error) {
-    console.error('Leaderboard yüklenemedi:', error);
-    this.leaderboard = [];
   }
 }
 

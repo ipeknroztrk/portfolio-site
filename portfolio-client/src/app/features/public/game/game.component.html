@@ -262,7 +262,15 @@
             </div>
           </div>
 
-          <div *ngIf="leaderboard.length === 0" class="leaderboard-empty">
+          <div *ngIf="leaderboardLoading" class="leaderboard-empty">
+            {{ langService.current() === 'tr' ? 'Yükleniyor...' : 'Loading...' }}
+          </div>
+
+          <div *ngIf="!leaderboardLoading && leaderboardError" class="leaderboard-empty">
+            {{ langService.current() === 'tr' ? 'Skorlar yüklenemedi. 🔄 ile tekrar deneyin.' : 'Could not load scores. Tap 🔄 to retry.' }}
+          </div>
+
+          <div *ngIf="!leaderboardLoading && !leaderboardError && leaderboard.length === 0" class="leaderboard-empty">
             {{ langService.current() === 'tr' ? 'Henüz skor yok' : 'No scores yet' }}
           </div>
           

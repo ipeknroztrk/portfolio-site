@@ -12,8 +12,18 @@
           </h3>
   
           <div *ngIf="isLoading" class="loading">...</div>
-  
-          <div *ngIf="!isLoading && experiences.length === 0" class="empty-state">
+
+          <div *ngIf="!isLoading && hasError" class="empty-state">
+            <div class="coming-soon">
+              <div class="cs-icon">⚠️</div>
+              <h4>{{ langService.current() === 'tr' ? 'Veriler yüklenemedi' : 'Could not load data' }}</h4>
+              <p>{{ langService.current() === 'tr'
+                ? 'Sunucuya şu an ulaşılamıyor. Lütfen sayfayı yenileyin.'
+                : 'The server could not be reached right now. Please refresh the page.' }}</p>
+            </div>
+          </div>
+
+          <div *ngIf="!isLoading && !hasError && experiences.length === 0" class="empty-state">
             <div class="coming-soon">
                 <div class="cs-icon">🚀</div>
                 <h4>{{ langService.current() === 'tr' ? 'Kariyer Yolculuğum Başlıyor' : 'Career Journey Begins' }}</h4>
