@@ -4,6 +4,7 @@ using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using PortfolioSite.API;
 using PortfolioSite.API.Middleware;
 using PortfolioSite.Application.Data;
 using PortfolioSite.Application.DTOs;
@@ -35,13 +36,16 @@ builder.Services.Configure<IpRateLimitOptions>(options =>
 {
     options.EnableEndpointRateLimiting = true;
     options.StackBlockedRequests = false;
-    options.RealIpHeader = "X-Real-IP";
+    // İstemci IP'si yalnızca proxy'nin (Render/Cloudflare) yazdığı başlıktan okunur; X-Forwarded-For
+    // kullanılmaz (Render ekler, temizlemez → ilk değer istemci tarafından taklit edilebilir).
+    options.RealIpHeader = Environment.GetEnvironmentVariable("CLIENT_IP_HEADER") ?? "X-Real-IP";
     options.ClientIdHeader = "X-ClientId";
     options.GeneralRules = new List<RateLimitRule>
     {
         new RateLimitRule { Endpoint = "POST:/api/v1/auth/login", Period = "15m", Limit = 5 },
         new RateLimitRule { Endpoint = "POST:/api/v1/contact", Period = "10m", Limit = 3 },
         new RateLimitRule { Endpoint = "POST:/api/leaderboard", Period = "1m", Limit = 10 }, // Leaderboard için rate limit
+        new RateLimitRule { Endpoint = "POST:/api/leaderboard/session", Period = "1m", Limit = 10 }, // Oyun oturumu açma
         new RateLimitRule { Endpoint = "GET:/api/leaderboard", Period = "1m", Limit = 30 },  // GET için daha yüksek limit
         new RateLimitRule { Endpoint = "*", Period = "1m", Limit = 60 }
     };
@@ -93,10 +97,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
                 errorCodesToAdd: null);
         }));
 
-// JWT Secret — .env'den oku
-var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
-    ?? builder.Configuration["JwtSettings:SecretKey"]
-    ?? throw new Exception("JWT_SECRET bulunamadı!");
+// JWT Secret — .env / ortam değişkeninden oku (production'da appsettings yedeği kullanılmaz)
+var jwtSecret = JwtSecretResolver.Resolve(builder.Configuration, builder.Environment);
 
 // JWT Secret'ı config'e yaz
 builder.Configuration["JwtSettings:SecretKey"] = jwtSecret;
@@ -106,6 +108,8 @@ builder.Services.Configure<JwtSettings>(
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<GameSessionStore>();
 
 // JWT doğrulama
 var key = Encoding.UTF8.GetBytes(jwtSecret);
@@ -127,20 +131,6 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["JwtSettings:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(key),
         ClockSkew = TimeSpan.Zero
-    };
-    
-    // Leaderboard için JWT zorunlu olmasın
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            // Leaderboard endpoint'leri için token kontrolünü atla
-            if (context.Request.Path.StartsWithSegments("/api/leaderboard"))
-            {
-                context.NoResult();
-            }
-            return Task.CompletedTask;
-        }
     };
 });
 
@@ -178,9 +168,12 @@ app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseCors("AllowAngular");
 
-// Swagger her zaman açık olabilir (production'da kapatmak isterseniz kontrol ekleyin)
-app.UseSwagger();
-app.UseSwaggerUI();
+// Swagger sadece development'ta açık
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 // HTTPS yönlendirme - production'da açın
 // app.UseHttpsRedirection();
@@ -207,3 +200,5 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+public partial class Program { } // Entegrasyon testleri için

@@ -22,8 +22,13 @@ public class ExperiencesController : ControllerBase
     [ResponseCache(Duration = 300)] // 5 dakika cache
     public async Task<IActionResult> GetAll()
     {
+        // Sıralama: devam eden deneyim en üstte, sonra başlangıç tarihine göre yeniden eskiye.
+        // OrderIndex sadece aynı tarihli kayıtlar için eşitlik bozucu.
         var experiences = await _context.Experiences
-            .OrderBy(e => e.OrderIndex)
+            .OrderByDescending(e => e.IsCurrent)
+            .ThenByDescending(e => e.StartDate)
+            .ThenBy(e => e.OrderIndex)
+            .ThenBy(e => e.Id)
             .ToListAsync();
 
         return Ok(experiences);
